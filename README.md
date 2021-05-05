@@ -25,3 +25,8 @@ Run `Volar: Switch TS Plugin on/off` from VSCode command palette.
 3. Open `src/main.ts` in VSCode
 4. Open the VSCode command palette
 5. Search and run "Select TypeScript version" -> "Use workspace version"
+
+
+# Icons
+
+[Harmonia Pastelis Icon Set](https://www.deviantart.com/raindropmemory/art/Harmonia-Pastelis-Icon-Set-117562336) by [Raindropmemory](https://www.deviantart.com/raindropmemory)
