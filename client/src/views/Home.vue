@@ -1,18 +1,41 @@
+<script setup lang="ts">
+
+  import { ref, onBeforeMount, } from 'vue';
+  import axios from "axios";
+
+  interface IItem {
+    title: string;
+    year: string;
+    meta: string;
+    type: string;
+  };
+
+  const info = ref();
+
+
+  onBeforeMount(async () => {
+    const {data} = await axios.get("/api/test");
+    console.log(data);
+    info.value = data;
+  });
+
+
+</script>
+
 <template>
-  <div class="home">
-    <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+
+  <h2>data</h2>
+  {{info}}
+  <!--
+      <div class="p-col">
+        <Button :disabled="!selectedArea" label="Ачысціць" class="p-ml-2 p-button-raised p-button-text" @click="bib = bibliography;selectedArea = ''" />
+      </div>
+            -->
+
+  <!-- <div v-for="(item, key) in bib" class="p-shadow-11 item" :key="key">{{item.title}}</div> -->
+
 </template>
 
-<script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+<style scoped>
 
-export default {
-  name: 'Home',
-  components: {
-    HelloWorld
-  }
-}
-</script>
+</style>
