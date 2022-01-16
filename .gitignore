@@ -7,3 +7,4 @@ package-lock.json
 .remote-sync.json
 .ftpignore
 .ftpconfig
+storage.json
