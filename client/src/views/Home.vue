@@ -2,6 +2,10 @@
 
   import { ref, reactive, onBeforeMount, } from 'vue';
   import axios from "axios";
+  import { useEditor, EditorContent } from '@tiptap/vue-3';
+  import StarterKit from '@tiptap/starter-kit';
+  import Placeholder from '@tiptap/extension-placeholder';
+
 
   interface IItem {
     title: string;
@@ -12,6 +16,18 @@
 
   const info = reactive({});
   const userinput = ref('');
+
+  const editor = useEditor({
+    // content: '',
+    extensions: [
+      StarterKit,
+      Placeholder.configure({
+        placeholder: 'Write something',
+        showOnlyWhenEditable: false,
+        showOnlyCurrent: false,
+      }),
+    ],
+  });
 
   onBeforeMount(async () => {
     const {data} = await axios.get("/api/data");
@@ -51,6 +67,9 @@
       <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent" class="p-d-block p-mx-auto" @keyup.enter="handleClick"/><Button label="Save" @click="handleClick"  />
       <small id="search-help" class="ml-2">...</small>
     </div>
+    <div>
+      <editor-content :editor="editor" class="editor"/>
+    </div>
   <div v-for="(item, key) in info?.data?.posts" class="shadow-11 item p-2 mb-3 text-center" style="border: 1px dashed pink;max-width:400px;margin:0 auto;" :key="key" :title="(new Date(item?.time)).toLocaleString('en-UK', { timeZone: 'Europe/Minsk' }).split('/').join('.').replace(',', '')">
     {{item.content}}
   </div>
@@ -66,7 +85,7 @@
 
 </template>
 
-<style scoped>
+<style lang="scss">
 label {
   margin: 0 0.5em;
   font-weight: bold;
@@ -77,5 +96,28 @@ label {
 }
 .p-inputtext {
   /* text-align:center !important; */
+}
+
+.editor {
+  display: inline-block;
+  text-align: left;
+  width: 300px;
+  background: lightpink;
+  padding: 5px;
+}
+
+.ProseMirror {
+  > * + * {
+    margin-top: 0.75em;
+  }
+}
+
+/* Placeholder (at the top) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
 }
 </style>
