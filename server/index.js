@@ -39,10 +39,11 @@ app.use(express.static("public"))
 // });
 
 app.post("/api/save", async (req, res) => {
-  console.log(req.body)
+  // console.log(req.body)
   const uid = uuidv4()
   const result = db.data.posts.push({
-    content: req.body.text,
+    title: req.body.title,
+    content: req.body.content,
     deleted: false,
     time: Date.now(),
     id: uid,
