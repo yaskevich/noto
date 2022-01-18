@@ -5,6 +5,7 @@
   import { useEditor, EditorContent } from '@tiptap/vue-3';
   import StarterKit from '@tiptap/starter-kit';
   import Placeholder from '@tiptap/extension-placeholder';
+  import { generateHTML } from '@tiptap/core';
 
 
   interface IItem {
@@ -14,11 +15,16 @@
     type: string;
   };
 
+
+  const html = (x:any) => generateHTML(x, [ StarterKit,]);
+
   const info = reactive({});
   const userinput = ref('');
 
+  const content = ref('');
+
   const editor = useEditor({
-    // content: '',
+    content: content.value,
     extensions: [
       StarterKit,
       Placeholder.configure({
@@ -42,12 +48,14 @@
 
   const handleClick = async () => {
     if(userinput.value) {
-      console.log("click!", userinput.value);
-      const {data} = await axios.post("/api/save", {"text": userinput.value});
+      const content = editor.value.getJSON();
+      console.log("click!", userinput.value, content);
+      const {data} = await axios.post("/api/save", {"title": userinput.value, "content": content});
       if (data?.id) {
           console.log(data);
-          info.data.posts.push({"content": userinput.value, "deleted": false, id: data.id, time: Date.now(), });
+          info.data.posts.push({"content": content, "title": userinput.value, "deleted": false, id: data.id, time: Date.now(), });
           userinput.value = '';
+          editor.value.commands.setContent('');
       }
     }
   }
@@ -62,16 +70,19 @@
     <Button :label="item" @click=""  v-for="(item, key) in info?.data?.cats" class="mr-4 p-button-help" />
   </div>
 
-  <div class="text-center" style="text-align:center;">
-    <div class="mb-6">
-      <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent" class="p-d-block p-mx-auto" @keyup.enter="handleClick"/><Button label="Save" @click="handleClick"  />
-      <small id="search-help" class="ml-2">...</small>
+  <div class="text-center" style="text-align:center;max-width:400px;margin: auto">
+    <div class="mb-6" style="border: 1px solid red;">
+      <div class="mt-3">
+        <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent" class="p-d-block p-mx-auto" @keyup.enter="handleClick"/><Button label="Save" @click="handleClick"  />
+      </div>
+      <div class="mt-3 mb-3">
+        <editor-content :editor="editor" class="editor"/>
+      </div>
     </div>
-    <div>
-      <editor-content :editor="editor" class="editor"/>
-    </div>
-  <div v-for="(item, key) in info?.data?.posts" class="shadow-11 item p-2 mb-3 text-center" style="border: 1px dashed pink;max-width:400px;margin:0 auto;" :key="key" :title="(new Date(item?.time)).toLocaleString('en-UK', { timeZone: 'Europe/Minsk' }).split('/').join('.').replace(',', '')">
-    {{item.content}}
+
+  <div v-for="(item, key) in info?.data?.posts" class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black;margin:0 auto;" :key="key" :title="(new Date(item?.time)).toLocaleString('en-UK', { timeZone: 'Europe/Minsk' }).split('/').join('.').replace(',', '')">
+    <span class="title">{{item.title}}</span>
+    <div v-html="html(item.content)" style="border: 1px dashed silver;"></div>
   </div>
 
 </div>
@@ -102,11 +113,12 @@ label {
   display: inline-block;
   text-align: left;
   width: 300px;
-  background: lightpink;
-  padding: 5px;
+  background: lightyellow;
+  padding: 15px;
 }
 
 .ProseMirror {
+  padding: 15px;
   > * + * {
     margin-top: 0.75em;
   }
