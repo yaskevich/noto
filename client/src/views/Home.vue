@@ -49,11 +49,12 @@
   const handleClick = async () => {
     if(userinput.value) {
       const content = editor.value.getJSON();
+      const realContent = editor.value.getText();
       console.log("click!", userinput.value, content);
-      const {data} = await axios.post("/api/save", {"title": userinput.value, "content": content});
+      const {data} = await axios.post("/api/save", {"title": userinput.value, "content": realContent?content:''});
       if (data?.id) {
           console.log(data);
-          info.data.posts.push({"content": content, "title": userinput.value, "deleted": false, id: data.id, time: Date.now(), });
+          info.data.posts.push({"content": realContent?content:'', "title": userinput.value, "deleted": false, id: data.id, time: Date.now(), });
           userinput.value = '';
           editor.value.commands.setContent('');
       }
@@ -82,7 +83,7 @@
 
   <div v-for="(item, key) in info?.data?.posts" class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black;margin:0 auto;" :key="key" :title="(new Date(item?.time)).toLocaleString('en-UK', { timeZone: 'Europe/Minsk' }).split('/').join('.').replace(',', '')">
     <span class="title">{{item.title}}</span>
-    <div v-html="html(item.content)" style="border: 1px dashed silver;"></div>
+    <div v-if="item.content" v-html="html(item.content)" class="content"></div>
   </div>
 
 </div>
@@ -131,5 +132,10 @@ label {
   color: #adb5bd;
   pointer-events: none;
   height: 0;
+}
+
+.content {
+  border: 1px dashed silver;
+  font-family: monospace;
 }
 </style>
