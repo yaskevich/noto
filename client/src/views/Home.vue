@@ -22,6 +22,7 @@
   const userinput = ref('');
 
   const content = ref('');
+  const userdate = ref('');
 
   const editor = useEditor({
     content: content.value,
@@ -75,6 +76,11 @@
     <div class="mb-6" style="border: 1px solid red;">
       <div class="mt-3">
         <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent" class="p-d-block p-mx-auto" @keyup.enter="handleClick"/><Button label="Save" @click="handleClick"  />
+        <div class="mt-2">
+          <!-- <label for="time24">Date time</label> -->
+          <Calendar id="time24" v-model="userdate" :showTime="true" :showSeconds="true" :showIcon="true" :showButtonBar="true" :manualInput="true" />
+
+        </div>
       </div>
       <div class="mt-3 mb-3">
         <editor-content :editor="editor" class="editor"/>
