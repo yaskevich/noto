@@ -22,7 +22,7 @@
   const userinput = ref('');
 
   const content = ref('');
-  const userdate = ref('');
+  const userdate = ref(null);
 
   const editor = useEditor({
     content: content.value,
@@ -78,7 +78,7 @@
         <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent" class="p-d-block p-mx-auto" @keyup.enter="handleClick"/><Button label="Save" @click="handleClick"  />
         <div class="mt-2">
           <!-- <label for="time24">Date time</label> -->
-          <Calendar id="time24" v-model="userdate" :showTime="true" :showSeconds="true" :showIcon="true" :showButtonBar="true" :manualInput="true" />
+          <Calendar id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true" :hideOnDateTimeSelect="true"/>
 
         </div>
       </div>
