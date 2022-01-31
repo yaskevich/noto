@@ -42,6 +42,7 @@ app.post("/api/save", async (req, res) => {
   // console.log(req.body)
   const uid = uuidv4()
   const result = db.data.posts.push({
+    date: req.body.date,
     title: req.body.title,
     content: req.body.content,
     deleted: false,
