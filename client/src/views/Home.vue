@@ -47,15 +47,22 @@
     // console.log(userinput);
   };
 
+  const renderDate = (x:any) => {
+    if (x) {
+      return (new Date(x)).toLocaleString('en-UK', { timeZone: 'Europe/Minsk' }).split('/').join('.').replace(',', '').slice(0, -3)
+    }
+  };
+
   const handleClick = async () => {
+    console.log("date", userdate.value);
     if(userinput.value) {
       const content = editor.value.getJSON();
       const realContent = editor.value.getText();
       console.log("click!", userinput.value, content);
-      const {data} = await axios.post("/api/save", {"title": userinput.value, "content": realContent?content:''});
+      const {data} = await axios.post("/api/save", {"title": userinput.value, "date": userdate.value, "content": realContent?content:''});
       if (data?.id) {
           console.log(data);
-          info.data.posts.push({"content": realContent?content:'', "title": userinput.value, "deleted": false, id: data.id, time: Date.now(), });
+          info.data.posts.push({"content": realContent?content:'', "title": userinput.value, "deleted": false, id: data.id, time: Date.now(), date: userdate.value });
           userinput.value = '';
           editor.value.commands.setContent('');
       }
@@ -78,8 +85,7 @@
         <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent" class="p-d-block p-mx-auto" @keyup.enter="handleClick"/><Button label="Save" @click="handleClick"  />
         <div class="mt-2">
           <!-- <label for="time24">Date time</label> -->
-          <Calendar id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true" :hideOnDateTimeSelect="true"/>
-
+          <Calendar id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true" :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="dd.mm.y"/>
         </div>
       </div>
       <div class="mt-3 mb-3">
@@ -87,8 +93,10 @@
       </div>
     </div>
 
-  <div v-for="(item, key) in info?.data?.posts" class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black;margin:0 auto;" :key="key" :title="(new Date(item?.time)).toLocaleString('en-UK', { timeZone: 'Europe/Minsk' }).split('/').join('.').replace(',', '')">
+  <div v-for="(item, key) in info?.data?.posts" class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black;margin:0 auto;" :key="key" :title="renderDate(item?.time)">
+    <div v-if="item.date" style="color:red;font-weight:bold;">{{renderDate(item?.date)}}</div>
     <span class="title">{{item.title}}</span>
+
     <div v-if="item.content" v-html="html(item.content)" class="content"></div>
   </div>
 
