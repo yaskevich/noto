@@ -93,7 +93,7 @@
       </div>
     </div>
 
-  <div v-for="(item, key) in info?.data?.posts" class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black;margin:0 auto;" :key="key" :title="renderDate(item?.time)">
+  <div v-for="(item, key) in info?.data?.posts.sort( ( a, b ) => b.time - a.time )" class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black;margin:0 auto;" :key="key" :title="renderDate(item?.time)">
     <div v-if="item.date" style="color:red;font-weight:bold;">{{renderDate(item?.date)}}</div>
     <span class="title">{{item.title}}</span>
 
