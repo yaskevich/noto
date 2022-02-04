@@ -5,6 +5,8 @@ import bodyParser from "body-parser"
 import express from "express"
 import fs from "fs"
 import history from "connect-history-api-fallback"
+import sqlite3 from 'sqlite3'
+import { open } from 'sqlite'
 import path from "path"
 import { v4 as uuidv4 } from "uuid"
 import { fileURLToPath } from "url"
@@ -12,6 +14,8 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 import { LowSync, JSONFileSync } from "lowdb"
+
+const dbSQL = await open({ filename: path.join(__dirname, '..', 'data.db'), driver: sqlite3.cached.Database })
 
 const db = new LowSync(
   new JSONFileSync(path.join(__dirname, "..", "storage.json"))
@@ -23,7 +27,7 @@ if (!db.data) {
 }
 // db.write();
 
-console.log("data", db.data)
+// console.log("data", db.data)
 
 const app = express()
 const port = process.env.PORT || 8080
