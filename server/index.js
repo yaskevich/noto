@@ -8,26 +8,32 @@ import history from "connect-history-api-fallback"
 import sqlite3 from 'sqlite3'
 import { open } from 'sqlite'
 import path from "path"
-import { v4 as uuidv4 } from "uuid"
 import { fileURLToPath } from "url"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-import { LowSync, JSONFileSync } from "lowdb"
+const db = await open({ filename: path.join(__dirname, '..', 'data.db'), driver: sqlite3.cached.Database })
 
-const dbSQL = await open({ filename: path.join(__dirname, '..', 'data.db'), driver: sqlite3.cached.Database })
 
-const db = new LowSync(
-  new JSONFileSync(path.join(__dirname, "..", "storage.json"))
-)
-db.read()
+const schemePosts = `CREATE TABLE IF NOT EXISTS posts (
+  [id] integer NOT NULL PRIMARY KEY UNIQUE,
+  [time] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  [date] DATETIME,
+  [title] TEXT,
+  [content] TEXT,
+  [deleted] BOOLEAN DEFAULT FALSE
+  )`;
 
-if (!db.data) {
-  db.data ||= { posts: [], cats: ["unsorted", "words", "links", "ideas", ] }
-}
-// db.write();
+const schemeCats = `CREATE TABLE IF NOT EXISTS cats (
+  [id] integer NOT NULL PRIMARY KEY UNIQUE,
+  [title] TEXT
+  )`;
 
-// console.log("data", db.data)
+const resultPosts = await db.exec(schemePosts);
+const resultCats = await db.exec(schemeCats);
+
+// const deadlines = await db.all(`SELECT * FROM posts where date > date('now')`);
+// console.log(deadlines);
 
 const app = express()
 const port = process.env.PORT || 8080
@@ -44,24 +50,20 @@ app.use(express.static("public"))
 
 app.post("/api/save", async (req, res) => {
   // console.log(req.body)
-  const uid = uuidv4()
-  const result = db.data.posts.push({
-    date: req.body.date,
-    title: req.body.title,
-    content: req.body.content,
-    deleted: false,
-    time: Date.now(),
-    id: uid,
-  })
-  console.log(result)
-  // const result = await db....(req.body.id, req.body.en, req.body.ru);
-  // res.json(result);
-  db.write()
-  res.json({ id: uid })
+  // const result = db.data.posts.push({
+  //   date: req.body.date,
+  //   time: Date.now(),
+  // })
+  // date('now'),
+  const result = await db.run(`INSERT INTO posts (title, content, date) VALUES ( ?, json(?), ?)`, req.body.title, JSON.stringify(req.body.content), req.body.date);
+  // console.log("result", result);
+  res.json({ id:  result.lastID })
 })
 
-app.get("/api/data", (req, res) => {
-  res.json({ data: db.data })
+app.get("/api/data", async(req, res) => {
+  const posts = await db.all(`SELECT * FROM posts`);
+  const cats  = await db.all(`SELECT * FROM cats`);
+  res.json({posts,  cats})
 })
 
 app.listen(port)
