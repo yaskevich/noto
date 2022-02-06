@@ -8,3 +8,4 @@ package-lock.json
 .ftpignore
 .ftpconfig
 storage.json
+data.db
