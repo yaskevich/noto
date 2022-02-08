@@ -86,7 +86,7 @@
   <div class="text-center" style="text-align:center;max-width:400px;margin: auto">
     <div class="mb-6" style="border: 1px solid red;">
       <div class="mt-3">
-        <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent" class="p-d-block p-mx-auto" @keyup.enter="handleClick"/><Button label="Save" @click="handleClick"  />
+        <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent" class="p-d-block p-mx-auto" @keyup.enter="handleClick" autocomplete="off"/><Button label="Save" @click="handleClick"  />
         <div class="mt-2">
           <!-- <label for="time24">Date time</label> -->
           <Calendar id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true" :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="dd.mm.y"/>
