@@ -16,13 +16,16 @@
   };
 
 
-  const html = (x:any) => generateHTML(x, [ StarterKit,]);
 
-  const info = reactive({});
+  const html = (x:any) => x && x !== '""' ? generateHTML(typeof x === 'string' ? JSON.parse(x): x, [ StarterKit,]) : '';
+
+
   const userinput = ref('');
 
   const content = ref('');
   const userdate = ref(null);
+  const posts = reactive([]);
+  const cats = reactive([]);
 
   const editor = useEditor({
     content: content.value,
@@ -39,7 +42,8 @@
   onBeforeMount(async () => {
     const {data} = await axios.get("/api/data");
     console.log(data);
-    Object.assign(info, data);
+    Object.assign(posts, data?.posts?.sort( ( a, b ) => b.time - a.time ).reverse());
+    Object.assign(cats, data.cats);
   });
 
   const inputEvent = () => {
@@ -54,15 +58,15 @@
   };
 
   const handleClick = async () => {
-    console.log("date", userdate.value);
+    // console.log("date", userdate.value);
     if(userinput.value) {
       const content = editor.value.getJSON();
       const realContent = editor.value.getText();
-      console.log("click!", userinput.value, content);
+      // console.log("click!", userinput.value, content);
       const {data} = await axios.post("/api/save", {"title": userinput.value, "date": userdate.value, "content": realContent?content:''});
       if (data?.id) {
           console.log(data);
-          info.data.posts.push({"content": realContent?content:'', "title": userinput.value, "deleted": false, id: data.id, time: Date.now(), date: userdate.value });
+          posts.unshift({"content": realContent?content:'', "title": userinput.value, "deleted": false, id: data.id, time: Date.now(), date: userdate.value });
           userinput.value = '';
           editor.value.commands.setContent('');
       }
@@ -76,7 +80,7 @@
   <h2>Notes</h2>
 
   <div class="mb-6">
-    <Button :label="item" @click=""  v-for="(item, key) in info?.data?.cats" class="mr-4 p-button-help" />
+    <Button :label="item.title" @click=""  v-for="(item, key) in cats" class="mr-4 p-button-help" />
   </div>
 
   <div class="text-center" style="text-align:center;max-width:400px;margin: auto">
@@ -93,7 +97,7 @@
       </div>
     </div>
 
-  <div v-for="(item, key) in info?.data?.posts.sort( ( a, b ) => b.time - a.time )" class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black;margin:0 auto;" :key="key" :title="renderDate(item?.time)">
+  <div v-for="(item, key) in posts" class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black;margin:0 auto;" :key="key" :title="renderDate(item?.time)">
     <div v-if="item.date" style="color:red;font-weight:bold;">{{renderDate(item?.date)}}</div>
     <span class="title">{{item.title}}</span>
 
