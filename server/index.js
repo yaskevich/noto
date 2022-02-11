@@ -32,9 +32,6 @@ const schemeCats = `CREATE TABLE IF NOT EXISTS cats (
 const resultPosts = await db.exec(schemePosts);
 const resultCats = await db.exec(schemeCats);
 
-// const deadlines = await db.all(`SELECT * FROM posts where date > date('now')`);
-// console.log(deadlines);
-
 const app = express()
 const port = process.env.PORT || 8080
 
@@ -64,6 +61,12 @@ app.get("/api/data", async(req, res) => {
   const posts = await db.all(`SELECT * FROM posts`);
   const cats  = await db.all(`SELECT * FROM cats`);
   res.json({posts,  cats})
+})
+
+app.get("/api/deadlines", async(req, res) => {
+  const deadlines = await db.all(`SELECT * FROM posts where date > date('now')`);
+  // console.log(deadlines);
+  res.json(deadlines)
 })
 
 app.listen(port)
