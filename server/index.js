@@ -29,8 +29,17 @@ const schemeCats = `CREATE TABLE IF NOT EXISTS cats (
   [title] TEXT
   )`;
 
+const schemePersons = `CREATE TABLE IF NOT EXISTS persons (
+  [id] integer NOT NULL PRIMARY KEY UNIQUE,
+  [bday] DATETIME,
+  [name] TEXT,
+  [content] TEXT,
+  [deleted] BOOLEAN DEFAULT FALSE
+  )`;
+
 const resultPosts = await db.exec(schemePosts);
 const resultCats = await db.exec(schemeCats);
+const resultPersons = await db.exec(schemePersons);
 
 const app = express()
 const port = process.env.PORT || 8080
