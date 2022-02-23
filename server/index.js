@@ -72,6 +72,11 @@ app.get("/api/data", async(req, res) => {
   res.json({posts,  cats})
 })
 
+app.get("/api/persons", async(req, res) => {
+  const persons = await db.all(`SELECT * FROM persons`);
+  res.json(persons)
+})
+
 app.get("/api/deadlines", async(req, res) => {
   const deadlines = await db.all(`SELECT * FROM posts where date > date('now')`);
   // console.log(deadlines);
