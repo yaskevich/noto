@@ -7,7 +7,10 @@
          style="border: 1px dashed black;margin:0 auto;"
          :key="key"
          :title="item.name">
-         <div class="title">{{item.name}}</div>
+         
+         <div class="title mb-2">
+            <Button :label="item.name" @click="goToPerson(item.id)"  />
+         </div>
          <div class="title">{{item.bday}}</div>
          <div class="title">{{item.content}}</div>
          <!-- <div v-if="item.content" v-html="html(item.content)" class="content"></div> -->
@@ -21,6 +24,11 @@
   import { ref, reactive, onBeforeMount } from 'vue';
   import axios from 'axios';
   const persons = reactive([]);
+  import router from '../router';
+  
+  const goToPerson = (id: number) => {
+    router.push(`/person/${id}`);
+  };
 
   onBeforeMount(async () => {
     const { data } = await axios.get('/api/persons');
