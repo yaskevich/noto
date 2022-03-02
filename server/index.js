@@ -78,9 +78,15 @@ app.get("/api/persons", async(req, res) => {
 })
 
 app.get("/api/person", async(req, res) => {
-  const id  = req.body.id || 1;
+  const id  = req.query.id || 1;
   const person = await db.all(`SELECT * FROM persons WHERE id = ?`, [id]);
   res.json(person.shift())
+})
+
+app.post("/api/person", async(req, res) => {
+  // console.log("req.body", req.body);
+  const result = await db.run(`UPDATE persons (bday, name, content) SET VALUES ( ?, ?, json(?))`, req.body.bday, req.body.name, JSON.stringify(req.body.content));
+  res.json({ id:  req.body.id });
 })
 
 app.get("/api/deadlines", async(req, res) => {
