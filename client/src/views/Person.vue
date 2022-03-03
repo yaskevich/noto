@@ -1,7 +1,14 @@
 <template>
-
+  <!-- {{person}} -->
   <div class="text-center" style="text-align:center;max-width:400px;margin: auto">
-    {{person}}
+    <InputText id="name"
+       aria-describedby="name-help"
+       type="text"
+       v-model="person.name"
+       class="p-d-block p-mx-auto"
+       autocomplete="off"
+      />
+      <Button label="Save" @click="handleClick" />
   </div>
 
 </template>
@@ -25,5 +32,12 @@
     console.log(data);
     Object.assign(person, data);
   });
+
+
+  const handleClick = async () => {
+    const { data } = await axios.post('/api/person', person);
+    console.log("post", data);
+  };
+
 
 </script>
