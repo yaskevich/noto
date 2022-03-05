@@ -9,6 +9,7 @@
        autocomplete="off"
       />
       <Button label="Save" @click="handleClick" />
+      <editor-content :editor="editor" class="editor" />
   </div>
 
 </template>
@@ -18,6 +19,25 @@
   import { ref, reactive, onBeforeMount } from 'vue';
   import axios from 'axios';
   import { useRoute } from 'vue-router';
+  import { useEditor, EditorContent } from '@tiptap/vue-3';
+  import StarterKit from '@tiptap/starter-kit';
+  import Placeholder from '@tiptap/extension-placeholder';
+  import Link from '@tiptap/extension-link';
+  import { generateHTML } from '@tiptap/core';
+
+  const editor = useEditor({
+    content: 'test',
+    extensions: [
+      StarterKit,
+      Link,
+      Placeholder.configure({
+        placeholder: 'Write something',
+        showOnlyWhenEditable: false,
+        showOnlyCurrent: false,
+      }),
+    ],
+  });
+
   const person = reactive({});
 
   const vuerouter = useRoute();
