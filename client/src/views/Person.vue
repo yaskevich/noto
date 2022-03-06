@@ -9,7 +9,7 @@
        autocomplete="off"
       />
       <Button label="Save" @click="handleClick" />
-      <editor-content :editor="editor" class="editor" />
+      <editor-content :editor="editor" class="editor" ref="contentRef"/>
   </div>
 
 </template>
@@ -25,6 +25,7 @@
   import Link from '@tiptap/extension-link';
   import { generateHTML } from '@tiptap/core';
 
+  const contentRef = ref<HTMLDivElement>();
   const editor = useEditor({
     content: 'test',
     extensions: [
@@ -38,7 +39,14 @@
     ],
   });
 
-  const person = reactive({});
+  interface IPerson {
+     name: string;
+     bday: string;
+     content: Object;
+     id: number;
+   };
+
+  const person: IPerson = reactive({}) as IPerson;
 
   const vuerouter = useRoute();
   const id = vuerouter.params.id;
@@ -49,12 +57,17 @@
     const config = {};
     config['params'] = { id: id };
     const { data } = await axios.get('/api/person', config);
-    console.log(data);
+    // console.log(data);
     Object.assign(person, data);
+    const ttInstance = (contentRef.value as any).editor;
+    ttInstance.commands.setContent(JSON.parse(data.content));
   });
 
 
   const handleClick = async () => {
+    const content = editor.value.getJSON();
+    person.content = content;
+    // console.log("person", person);
     const { data } = await axios.post('/api/person', person);
     console.log("post", data);
   };
