@@ -2,12 +2,13 @@
 
   <div class="text-center" style="text-align:center;max-width:400px;margin: auto">
     <h3>Persons</h3>
+    <Button label="Add" class="p-button-secondary" @click="addPerson" />
     <div v-for="(item, key) in persons"
          class="shadow-11 item p-2 mb-3 text-left"
          style="border: 1px dashed black;margin:0 auto;"
          :key="key"
          :title="item.name">
-         
+
          <div class="title mb-2">
             <Button :label="item.name" @click="goToPerson(item.id)"  />
          </div>
@@ -25,9 +26,13 @@
   import axios from 'axios';
   const persons = reactive([]);
   import router from '../router';
-  
+
   const goToPerson = (id: number) => {
     router.push(`/person/${id}`);
+  };
+
+  const addPerson = (id: number) => {
+    router.push(`/person/`);
   };
 
   onBeforeMount(async () => {
