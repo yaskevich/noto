@@ -84,9 +84,15 @@ app.get("/api/person", async(req, res) => {
 })
 
 app.post("/api/person", async(req, res) => {
-  // console.log("req.body", req.body);
-  const result = await db.run(`UPDATE persons (bday, name, content) SET VALUES ( ?, ?, json(?))`, req.body.bday, req.body.name, JSON.stringify(req.body.content));
-  res.json({ id:  req.body.id });
+  let response = {}
+  if (req.body.id) {
+    const result = await db.run(`UPDATE persons SET bday = ?, name = ?, content = json(?) WHERE id = ?`, [req.body.bday, req.body.name, JSON.stringify(req.body.content), req.body.id]);
+    response = { id:  req.body.id };
+  } else {
+    const result  = await db.run(`INSERT INTO persons (bday, name, content) VALUES ( ?, ?, json(?))`, [req.body.bday, req.body.name, JSON.stringify(req.body.content)]);
+    const reponse = { id: result.lastID};
+  }
+  res.json(response);
 })
 
 app.get("/api/deadlines", async(req, res) => {
