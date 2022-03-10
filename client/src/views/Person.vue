@@ -27,7 +27,7 @@
 
   const contentRef = ref<HTMLDivElement>();
   const editor = useEditor({
-    content: 'test',
+    content: '',
     extensions: [
       StarterKit,
       Link,
@@ -54,20 +54,22 @@
   // import router from '../router';
 
   onBeforeMount(async () => {
-    const config = {};
-    config['params'] = { id: id };
-    const { data } = await axios.get('/api/person', config);
-    // console.log(data);
-    Object.assign(person, data);
-    const ttInstance = (contentRef.value as any).editor;
-    ttInstance.commands.setContent(JSON.parse(data.content));
+    if (id) {
+      const config = {};
+      config['params'] = { id: id };
+      const { data } = await axios.get('/api/person', config);
+      // console.log(data);
+      Object.assign(person, data);
+      const ttInstance = (contentRef.value as any).editor;
+      ttInstance.commands.setContent(JSON.parse(data.content));
+    }
   });
 
 
   const handleClick = async () => {
     const content = editor.value.getJSON();
     person.content = content;
-    // console.log("person", person);
+    console.log("person", person);
     const { data } = await axios.post('/api/person', person);
     console.log("post", data);
   };
