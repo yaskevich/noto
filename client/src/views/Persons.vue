@@ -13,8 +13,7 @@
             <Button :label="item.name" @click="goToPerson(item.id)"  />
          </div>
          <div class="title">{{item.bday}}</div>
-         <div class="title">{{item.content}}</div>
-         <!-- <div v-if="item.content" v-html="html(item.content)" class="content"></div> -->
+         <div v-if="item.content" v-html="helpers.html(item.content)" class="content"></div>
     </div>
   </div>
 
@@ -26,6 +25,7 @@
   import axios from 'axios';
   const persons = reactive([]);
   import router from '../router';
+  import helpers from '../helpers';
 
   const goToPerson = (id: number) => {
     router.push(`/person/${id}`);
