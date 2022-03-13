@@ -6,7 +6,7 @@
   import StarterKit from '@tiptap/starter-kit';
   import Placeholder from '@tiptap/extension-placeholder';
   import Link from '@tiptap/extension-link';
-  import { generateHTML } from '@tiptap/core';
+  import helpers from '../helpers';
 
   interface IItem {
     title: string;
@@ -14,9 +14,6 @@
     meta: string;
     type: string;
   }
-
-  const html = (x: any) =>
-    x && x !== '""' ? generateHTML(typeof x === 'string' ? JSON.parse(x) : x, [StarterKit, Link]) : '';
 
   const userinput = ref('');
 
@@ -50,16 +47,6 @@
     // console.log(userinput);
   };
 
-  const renderDate = (x: any) => {
-    if (x) {
-      return new Date(x)
-        .toLocaleString('en-UK', { timeZone: 'Europe/Minsk' })
-        .split('/')
-        .join('.')
-        .replace(',', '')
-        .slice(0, -3);
-    }
-  };
 
   const handleClick = async () => {
     // console.log("date", userdate.value);
@@ -170,11 +157,11 @@
          class="shadow-11 item p-2 mb-3 text-left"
          style="border: 1px dashed black;margin:0 auto;"
          :key="key"
-         :title="renderDate(item?.time)">
-      <div v-if="item.date" style="color:red;font-weight:bold;">{{renderDate(item?.date)}}</div>
+         :title="helpers.renderDate(item?.time)">
+      <div v-if="item.date" style="color:red;font-weight:bold;">{{helpers.renderDate(item?.date)}}</div>
       <span class="title">{{item.title}}</span>
 
-      <div v-if="item.content" v-html="html(item.content)" class="content"></div>
+      <div v-if="item.content" v-html="helpers.html(item.content)" class="content"></div>
     </div>
 
   </div>
