@@ -16,10 +16,18 @@ const renderDate = (x: any) => {
   }
 };
 
-
+const formatDate = (x: any) => {
+  if (x) {
+    // return new Date(x)
+    var d = x.getDate();
+    var m = x.getMonth() + 1; //Month from 0 to 11
+    var y = x.getFullYear();
+    return '' + y + '-' + (m<=9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
+  }
+};
 
 export default {
   html,
   renderDate,
-
+  formatDate,
 };
