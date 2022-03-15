@@ -1,6 +1,7 @@
 <template>
-  <!-- {{person}} -->
+
   <div class="text-center" style="text-align:center;max-width:400px;margin: auto">
+
     <InputText id="name"
        aria-describedby="name-help"
        type="text"
@@ -9,6 +10,20 @@
        autocomplete="off"
       />
       <Button label="Save" @click="handleClick" />
+
+      <div class="mt-2 mb-2">
+        <!-- <label for="time24">Date time</label> -->
+        <Calendar id="time24"
+                  v-model="person.bday"
+                  :showTime="false"
+                  :showIcon="true"
+                  :showButtonBar="true"
+                  :hideOnDateTimeSelect="true"
+                  :touchUI="true"
+                  :showOnFocus="false"
+                  dateFormat="yy.mm.dd" />
+      </div>
+
       <editor-content :editor="editor" class="editor" ref="contentRef"/>
   </div>
 
@@ -23,7 +38,7 @@
   import StarterKit from '@tiptap/starter-kit';
   import Placeholder from '@tiptap/extension-placeholder';
   import Link from '@tiptap/extension-link';
-  import { generateHTML } from '@tiptap/core';
+  import helpers from '../helpers';
 
   const contentRef = ref<HTMLDivElement>();
   const editor = useEditor({
@@ -58,21 +73,21 @@
       const config = {};
       config['params'] = { id: id };
       const { data } = await axios.get('/api/person', config);
-      // console.log(data);
+      // console.log("database", data);
+      data.bday = data.bday.replaceAll('-', '.');
       Object.assign(person, data);
       const ttInstance = (contentRef.value as any).editor;
       ttInstance.commands.setContent(JSON.parse(data.content));
     }
   });
 
-
   const handleClick = async () => {
-    const content = editor.value.getJSON();
-    person.content = content;
-    console.log("person", person);
-    const { data } = await axios.post('/api/person', person);
+    const datum = {...person};
+    datum.content = editor.value.getJSON();
+    datum.bday = helpers.formatDate(datum.bday);
+    // console.log("person", datum);
+    const { data } = await axios.post('/api/person', datum);
     console.log("post", data);
   };
-
 
 </script>
