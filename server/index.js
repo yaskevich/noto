@@ -72,6 +72,12 @@ app.get("/api/data", async(req, res) => {
   res.json({posts,  cats})
 })
 
+app.get("/api/note", async(req, res) => {
+  const id  = req.query.id || 1;
+  const note = await db.all(`SELECT * FROM posts WHERE id = ?`, [id]);
+  res.json(note.shift());
+})
+
 app.get("/api/persons", async(req, res) => {
   const persons = await db.all(`SELECT * FROM persons`);
   res.json(persons)
@@ -84,13 +90,14 @@ app.get("/api/person", async(req, res) => {
 })
 
 app.post("/api/person", async(req, res) => {
-  let response = {}
+  let response = {};
+  console.log("req.body", req.body);
   if (req.body.id) {
     const result = await db.run(`UPDATE persons SET bday = ?, name = ?, content = json(?) WHERE id = ?`, [req.body.bday, req.body.name, JSON.stringify(req.body.content), req.body.id]);
     response = { id:  req.body.id };
   } else {
     const result  = await db.run(`INSERT INTO persons (bday, name, content) VALUES ( ?, ?, json(?))`, [req.body.bday, req.body.name, JSON.stringify(req.body.content)]);
-    const reponse = { id: result.lastID};
+    response = { id: result.lastID};
   }
   res.json(response);
 })
