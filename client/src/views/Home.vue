@@ -6,6 +6,7 @@
   import StarterKit from '@tiptap/starter-kit';
   import Placeholder from '@tiptap/extension-placeholder';
   import Link from '@tiptap/extension-link';
+  import router from '../router';
   import helpers from '../helpers';
 
   interface IItem {
@@ -105,10 +106,14 @@
       .run();
   };
 
+  const goToNote = (id: number) => {
+    router.push(`/note/${id}`);
+  };
+
 </script>
 
 <template>
-
+  <div>
   <h2>Notes</h2>
 
   <div class="mb-6">
@@ -159,7 +164,14 @@
          :key="key"
          :title="helpers.renderDate(item?.time)">
       <div v-if="item.date" style="color:red;font-weight:bold;">{{helpers.renderDate(item?.date)}}</div>
-      <span class="title">{{item.title}}</span>
+      <div class="flex">
+        <div class="mt-2">
+          <span class="title">{{item.title}}</span>
+        </div>
+        <div class="ml-auto ">
+          <Button icon="pi pi-pencil" class="p-button-text" @click="goToNote(item.id)" />
+        </div>
+      </div>
 
       <div v-if="item.content" v-html="helpers.html(item.content)" class="content"></div>
     </div>
@@ -172,11 +184,14 @@
               -->
 
   <!-- <div v-for="(item, key) in bib" class="p-shadow-11 item" :key="key">{{item.title}}</div> -->
-
+  </div>
 </template>
 
 <style lang="scss">
 
+  .title {
+    font-weight:bold;
+  }
   label {
     margin: 0 0.5em;
     font-weight: bold;
