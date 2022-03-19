@@ -3,6 +3,7 @@ import Home from '../views/Home.vue'
 import Deadlines from '../views/Deadlines.vue'
 import Persons from '../views/Persons.vue'
 import Person from '../views/Person.vue'
+import Note from '../views/Note.vue'
 
 const routes = [
   {
@@ -24,6 +25,12 @@ const routes = [
     path: '/person/:id?',
     component: Person,
     name: 'Person',
+    props: true
+  },
+  {
+    path: '/note/:id?',
+    component: Note,
+    name: 'Note',
     props: true
   },
   {
