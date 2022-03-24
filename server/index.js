@@ -78,6 +78,19 @@ app.get("/api/note", async(req, res) => {
   res.json(note.shift());
 })
 
+app.post("/api/note", async(req, res) => {
+  let response = {};
+  console.log("req.body", req.body);
+  if (req.body.id) {
+    const result = await db.run(`UPDATE posts SET title = ?, date = ?, content = json(?) WHERE id = ?`, [req.body.title, req.body.date, JSON.stringify(req.body.content), req.body.id]);
+    response = { id:  req.body.id };
+  } else {
+    const result  = await db.run(`INSERT INTO posts (title, date, content) VALUES ( ?, ?, json(?))`, [req.body.title, req.body.date, JSON.stringify(req.body.content)]);
+    response = { id: result.lastID};
+  }
+  res.json(response);
+})
+
 app.get("/api/persons", async(req, res) => {
   const persons = await db.all(`SELECT * FROM persons`);
   res.json(persons)
