@@ -83,12 +83,12 @@
   });
 
   const handleClick = async () => {
-    // const datum = {...note};
-    // datum.content = editor.value.getJSON();
+    const datum = {...note};
+    datum.content = editor.value.getJSON();
     // datum.bday = helpers.formatDate(datum.bday);
-    // // console.log("note", datum);
-    // const { data } = await axios.post('/api/note', datum);
-    // console.log("post", data);
+    console.log("note", datum);
+    const { data } = await axios.post('/api/note', datum);
+    console.log("post", data);
   };
 
 </script>
