@@ -21,7 +21,8 @@ const schemePosts = `CREATE TABLE IF NOT EXISTS posts (
   [date] DATETIME,
   [title] TEXT,
   [content] TEXT,
-  [deleted] BOOLEAN DEFAULT FALSE
+  [deleted] BOOLEAN DEFAULT FALSE,
+  [faved] BOOLEAN DEFAULT FALSE
   )`;
 
 const schemeCats = `CREATE TABLE IF NOT EXISTS cats (
