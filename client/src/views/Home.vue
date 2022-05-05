@@ -110,6 +110,14 @@
     router.push(`/note/${id}`);
   };
 
+  const addToFavs = (id: number) => {
+    console.log("like!", id);
+  };
+
+  const selectGroup = (id: number) => {
+    console.log("group", id);
+  };
+
 </script>
 
 <template>
@@ -117,7 +125,7 @@
   <h2>Notes</h2>
 
   <div class="mb-6">
-    <Button :label="item.title" @click="" v-for="(item, key) in cats" class="mr-4 p-button-help" />
+    <Button :label="item.title" @click="selectGroup(key)" v-for="(item, key) in cats" class="mr-4 p-button-help" :key="key"/>
   </div>
 
   <div class="text-center" style="text-align:center;max-width:400px;margin: auto">
@@ -169,6 +177,7 @@
           <span class="title">{{item.title}}</span>
         </div>
         <div class="ml-auto ">
+          <Button icon="pi pi-heart" class="p-button-text" @click="addToFavs(item.id)" />
           <Button icon="pi pi-pencil" class="p-button-text" @click="goToNote(item.id)" />
         </div>
       </div>
@@ -199,9 +208,6 @@
 
   .p-field * {
     display: block;
-  }
-  .p-inputtext {
-    /* text-align:center !important; */
   }
 
   .editor {
