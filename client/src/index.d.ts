@@ -1,6 +1,6 @@
 import { StyleValue } from 'vue';
 
-import type CalendarValueType from 'primevue/calendar'
+import type CalendarValueType from 'primevue/calendar';
 
 declare global {
   interface keyable {
@@ -31,7 +31,7 @@ declare global {
     title: string;
     id: number;
     date: Date;
-    content: string;
+    content: Object;
     time: string;
     deleted: boolean;
   }

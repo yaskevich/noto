@@ -65,13 +65,15 @@ onBeforeMount(async () => {
     // data.bday = data.bday.replaceAll('-', '.');
     Object.assign(note, data);
     const ttInstance = (contentRef.value as any).editor;
+    console.log(data.content);
+
     ttInstance.commands.setContent(JSON.parse(data.content));
   }
 });
 
 const handleClick = async () => {
   const datum = { ...note };
-  datum.content = String(editor.value?.getJSON()) || '';
+  datum.content = editor.value?.getJSON() || '';
   // datum.bday = helpers.formatDate(datum.bday);
   console.log('note', datum);
   const { data } = await axios.post('/api/note', datum);
