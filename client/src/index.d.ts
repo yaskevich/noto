@@ -34,5 +34,6 @@ declare global {
     content: Object;
     time: string;
     deleted: boolean;
+    faved: boolean;
   }
 }

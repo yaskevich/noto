@@ -88,8 +88,11 @@ const goToNote = (id: number) => {
   router.push(`/note/${id}`);
 };
 
-const addToFavs = (id: number) => {
-  console.log('like!', id);
+const addToFavs = async (item: IPost) => {
+  console.log('like!', item);
+  item.faved = !item.faved;
+  const { data } = await axios.post('/api/fav', { id: item.id, status: item.faved });
+  console.log(data);
 };
 
 const selectGroup = (id: number) => {
@@ -162,11 +165,10 @@ const selectGroup = (id: number) => {
             <span class="title">{{ item.title }}</span>
           </div>
           <div class="ml-auto">
-            <Button icon="pi pi-heart" class="p-button-text" @click="addToFavs(item.id)" />
+            <Button :icon="`pi pi-heart${item?.faved ? '-fill' : ''}`" class="p-button-text" @click="addToFavs(item)" />
             <Button icon="pi pi-pencil" class="p-button-text" @click="goToNote(item.id)" />
           </div>
         </div>
-
         <div v-if="item.content" v-html="helpers.html(item.content)" class="content"></div>
       </div>
     </div>

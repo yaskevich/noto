@@ -47,7 +47,7 @@ const port = process.env.PORT || 8080
 
 // app.use(compression());
 // app.set('trust proxy', 1);
-app.use(bodyParser.json()) // support json encoded bodies
+app.use(bodyParser.json({limit: '50mb'})) // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
 app.use(express.static("public"))
 
@@ -90,6 +90,12 @@ app.post("/api/note", async(req, res) => {
     response = { id: result.lastID};
   }
   res.json(response);
+})
+
+app.post("/api/fav", async(req, res) => {
+  console.log("req.body", req.body);
+  const result = await db.run(`UPDATE posts SET faved = ? WHERE id = ?`, [req.body.status, req.body.id]);
+  res.json(result);
 })
 
 app.get("/api/persons", async(req, res) => {
