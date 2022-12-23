@@ -2,11 +2,13 @@
   <div id="main">
     <div id="nav">
       <router-link to="/">Home</router-link> | <router-link to="/deadlines">Deadlines</router-link> |
+      <router-link to="/home/favs">Favs</router-link> |
       <router-link to="/persons">Persons</router-link>
        <!-- | -->
       <!-- <router-link to="/about">About</router-link> -->
     </div>
-    <router-view />
+    <router-view :key="$route.fullPath"/>
+    
   </div>
 </template>
 

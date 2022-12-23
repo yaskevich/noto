@@ -7,7 +7,10 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
 import router from '../router';
 import helpers from '../helpers';
+import { useRoute } from 'vue-router';
 
+const vuerouter = useRoute();
+const selection = String(vuerouter.params.id);
 const userinput = ref('');
 const content = ref('');
 const userdate = ref();
@@ -30,7 +33,11 @@ const editor = useEditor({
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/data');
   console.log(data);
-  Object.assign(posts, data?.posts?.sort((a: any, b: any) => b.time - a.time).reverse());
+  const processed = data?.posts
+    ?.sort((a: any, b: any) => b.time - a.time)
+    .reverse()
+    .filter((x: any) => (selection === 'favs' ? x?.faved : x.id));
+  Object.assign(posts, processed);
   Object.assign(cats, data.cats);
 });
 
@@ -89,7 +96,7 @@ const goToNote = (id: number) => {
 };
 
 const addToFavs = async (item: IPost) => {
-  console.log('like!', item);
+  console.log('like!');
   item.faved = !item.faved;
   const { data } = await axios.post('/api/fav', { id: item.id, status: item.faved });
   console.log(data);
