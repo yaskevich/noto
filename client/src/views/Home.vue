@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { ref, reactive, onBeforeMount } from 'vue';
 import axios from 'axios';
-import { useEditor, EditorContent } from '@tiptap/vue-3';
-import StarterKit from '@tiptap/starter-kit';
-import Placeholder from '@tiptap/extension-placeholder';
-import Link from '@tiptap/extension-link';
+
 import router from '../router';
 import helpers from '../helpers';
 import { useRoute } from 'vue-router';
+import { EditorContent } from '@tiptap/vue-3';
 
 const vuerouter = useRoute();
 const selection = String(vuerouter.params.id);
@@ -16,23 +14,11 @@ const content = ref('');
 const userdate = ref();
 const posts = reactive([] as Array<IPost>);
 const cats = reactive([] as Array<ICat>);
-
-const editor = useEditor({
-  content: content.value,
-  extensions: [
-    StarterKit,
-    Link,
-    Placeholder.configure({
-      placeholder: 'Write something',
-      showOnlyWhenEditable: false,
-      showOnlyCurrent: false,
-    }),
-  ],
-});
+const editor = helpers.setupEditor(content.value);
 
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/data');
-  console.log(data);
+  // console.log(data);
   const processed = data?.posts
     ?.sort((a: any, b: any) => b.time - a.time)
     .reverse()

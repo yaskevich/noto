@@ -31,27 +31,12 @@
 import { ref, reactive, onBeforeMount } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
-import { useEditor, EditorContent } from '@tiptap/vue-3';
-import StarterKit from '@tiptap/starter-kit';
-import Placeholder from '@tiptap/extension-placeholder';
-import Link from '@tiptap/extension-link';
+import { EditorContent } from '@tiptap/vue-3';
+import helpers from '../helpers';
 
 const contentRef = ref<HTMLDivElement>();
-const editor = useEditor({
-  content: '',
-  extensions: [
-    StarterKit,
-    Link,
-    Placeholder.configure({
-      placeholder: 'Write something',
-      showOnlyWhenEditable: false,
-      showOnlyCurrent: false,
-    }),
-  ],
-});
-
+const editor = helpers.setupEditor('');
 const note = reactive({}) as IPost;
-
 const vuerouter = useRoute();
 const id = vuerouter.params.id;
 console.log('note id', id);
