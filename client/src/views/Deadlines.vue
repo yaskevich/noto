@@ -23,8 +23,8 @@ const posts = reactive([] as Array<IItem>);
 
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/deadlines');
-  console.log(data);
-  Object.assign(posts, data?.sort((a: any, b: any) => b.time - a.time).reverse());
+  // console.log(data);
+  Object.assign(posts, data?.sort((a: any, b: any) => a.date.localeCompare(b.date)));
   console.log(posts);
 });
 </script>
