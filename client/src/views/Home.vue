@@ -1,8 +1,61 @@
+<template>
+  <div>
+    <!-- <h2>Notes</h2> -->
+    <div class="mb-6">
+      <Button
+        :label="item.title"
+        @click="selectGroup(key)"
+        v-for="(item, key) in cats"
+        class="mr-4 p-button-help"
+        :key="key" />
+    </div>
+    <div class="text-center">
+      <div class="mb-6" style="border: 1px solid red">
+        <div class="mt-3">
+          <InputText
+            id="search"
+            aria-describedby="search-help"
+            type="text"
+            v-model="userinput"
+            @input="inputEvent"
+            class="p-d-block p-mx-auto"
+            @keyup.enter="handleClick"
+            autocomplete="off" />
+          <Button label="Save" @click="handleClick" />
+          <div class="mt-2">
+            <!-- <label for="time24">Date time</label> -->
+            <Calendar
+              id="time24"
+              v-model="userdate"
+              :showTime="true"
+              :showIcon="true"
+              :showButtonBar="true"
+              :hideOnDateTimeSelect="true"
+              :touchUI="true"
+              :showOnFocus="false"
+              dateFormat="yy.mm.dd" />
+          </div>
+        </div>
+        <div class="mt-3 mb-3">
+          <div v-if="editor">
+            <div>
+              <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">setLink</button>
+              <button @click="editor?.chain().focus().unsetLink().run()" :disabled="!editor.isActive('link')">
+                unsetLink
+              </button>
+            </div>
+            <editor-content :editor="editor" class="editor" />
+          </div>
+        </div>
+      </div>
+      <Unit v-for="entry in posts" :post="entry" />
+    </div>
+  </div>
+</template>
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount } from 'vue';
+import { ref, reactive, onBeforeMount, defineProps } from 'vue';
 import axios from 'axios';
-
-import router from '../router';
+import Unit from './Unit.vue';
 import helpers from '../helpers';
 import { useRoute } from 'vue-router';
 import { EditorContent } from '@tiptap/vue-3';
@@ -77,104 +130,10 @@ const setLink = () => {
   editor.value?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
 };
 
-const goToNote = (id: number) => {
-  router.push(`/note/${id}`);
-};
-
-const addToFavs = async (item: IPost) => {
-  console.log('like!');
-  item.faved = !item.faved;
-  const { data } = await axios.post('/api/fav', { id: item.id, status: item.faved });
-  console.log(data);
-};
-
 const selectGroup = (id: number) => {
   console.log('group', id);
 };
 </script>
-
-<template>
-  <div>
-    <!-- <h2>Notes</h2> -->
-
-    <div class="mb-6">
-      <Button
-        :label="item.title"
-        @click="selectGroup(key)"
-        v-for="(item, key) in cats"
-        class="mr-4 p-button-help"
-        :key="key" />
-    </div>
-
-    <div class="text-center">
-      <div class="mb-6" style="border: 1px solid red">
-        <div class="mt-3">
-          <InputText
-            id="search"
-            aria-describedby="search-help"
-            type="text"
-            v-model="userinput"
-            @input="inputEvent"
-            class="p-d-block p-mx-auto"
-            @keyup.enter="handleClick"
-            autocomplete="off" />
-          <Button label="Save" @click="handleClick" />
-          <div class="mt-2">
-            <!-- <label for="time24">Date time</label> -->
-            <Calendar
-              id="time24"
-              v-model="userdate"
-              :showTime="true"
-              :showIcon="true"
-              :showButtonBar="true"
-              :hideOnDateTimeSelect="true"
-              :touchUI="true"
-              :showOnFocus="false"
-              dateFormat="dd.mm.y" />
-          </div>
-        </div>
-        <div class="mt-3 mb-3">
-          <div v-if="editor">
-            <div>
-              <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">setLink</button>
-              <button @click="editor?.chain().focus().unsetLink().run()" :disabled="!editor.isActive('link')">
-                unsetLink
-              </button>
-            </div>
-            <editor-content :editor="editor" class="editor" />
-          </div>
-        </div>
-      </div>
-
-      <div
-        v-for="(item, key) in posts"
-        class="shadow-11 item p-2 mb-3 text-left"
-        style="border: 1px dashed black; margin: 0 auto"
-        :key="key"
-        :title="helpers.renderDate(item?.time)">
-        <div v-if="item.date" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.date) }}</div>
-        <div class="flex">
-          <div class="mt-2">
-            <span class="title">{{ item.title }}</span>
-          </div>
-          <div class="ml-auto">
-            <Button :icon="`pi pi-heart${item?.faved ? '-fill' : ''}`" class="p-button-text" @click="addToFavs(item)" />
-            <Button icon="pi pi-pencil" class="p-button-text" @click="goToNote(item.id)" />
-          </div>
-        </div>
-        <div v-if="item.content" v-html="helpers.html(item.content)" class="content"></div>
-      </div>
-    </div>
-    <!--
-        <div class="p-col">
-          <Button :disabled="!selectedArea" label="Ачысціць" class="p-ml-2 p-button-raised p-button-text" @click="bib = bibliography;selectedArea = ''" />
-        </div>
-              -->
-
-    <!-- <div v-for="(item, key) in bib" class="p-shadow-11 item" :key="key">{{item.title}}</div> -->
-  </div>
-</template>
-
 <style lang="scss">
 .title {
   font-weight: bold;

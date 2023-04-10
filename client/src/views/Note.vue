@@ -14,7 +14,7 @@
       <Calendar
         id="time24"
         v-model="note.date"
-        :showTime="false"
+        :showTime="true"
         :showIcon="true"
         :showButtonBar="true"
         :hideOnDateTimeSelect="true"
@@ -46,12 +46,10 @@ onBeforeMount(async () => {
   if (id) {
     const config = { params: { id: id } };
     const { data } = await axios.get('/api/note', config);
-    console.log('database', data);
-    // data.bday = data.bday.replaceAll('-', '.');
+    data.date = new Date(data.date);
     Object.assign(note, data);
     const ttInstance = (contentRef.value as any).editor;
     console.log(data.content);
-
     ttInstance.commands.setContent(JSON.parse(data.content));
   }
 });
@@ -59,7 +57,6 @@ onBeforeMount(async () => {
 const handleClick = async () => {
   const datum = { ...note };
   datum.content = editor.value?.getJSON() || '';
-  // datum.bday = helpers.formatDate(datum.bday);
   console.log('note', datum);
   const { data } = await axios.post('/api/note', datum);
   console.log('post', data);
