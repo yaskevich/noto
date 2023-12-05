@@ -1,12 +1,12 @@
 <template>
-  <div
-    class="shadow-11 item p-2 mb-3 text-left"
-    style="border: 1px dashed black; margin: 0 auto"
+  <div class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black; margin: 0 auto"
     :title="helpers.renderDate(item?.time)">
-    <div v-if="item.date" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.date) }}</div>
     <div class="flex">
       <div class="mt-2">
-        <span class="title">{{ item.title }}</span>
+        <span class="p-1" v-if="item.date" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.date) }}</span>
+        <i class="pi pi-clock p-1" v-if="item.stamped" style="color:green"></i>
+        <span>{{ helpers.renderDate(item.time) }}</span>
+        <span class="title p-1">{{ item.title }}</span>
       </div>
       <div class="ml-auto">
         <Button :icon="`pi pi-heart${item?.faved ? '-fill' : ''}`" class="p-button-text" @click="addToFavs(item)" />

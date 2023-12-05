@@ -2,38 +2,23 @@
   <div>
     <!-- <h2>Notes</h2> -->
     <div class="mb-6">
-      <Button
-        :label="item.title"
-        @click="selectGroup(key)"
-        v-for="(item, key) in cats"
-        class="mr-4 p-button-help"
+      <Button :label="item.title" @click="selectGroup(key)" v-for="(item, key) in cats" class="mr-4 p-button-help"
         :key="key" />
     </div>
     <div class="text-center">
       <div class="mb-6" style="border: 1px solid red">
         <div class="mt-3">
-          <InputText
-            id="search"
-            aria-describedby="search-help"
-            type="text"
-            v-model="userinput"
-            @input="inputEvent"
-            class="p-d-block p-mx-auto"
-            @keyup.enter="handleClick"
-            autocomplete="off" />
+          <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent"
+            class="p-d-block p-mx-auto" @keyup.enter="handleClick" autocomplete="off" />
           <Button label="Save" @click="handleClick" />
-          <div class="mt-2">
+          <div class="mt-2" v-if="!isStamped">
             <!-- <label for="time24">Date time</label> -->
-            <Calendar
-              id="time24"
-              v-model="userdate"
-              :showTime="true"
-              :showIcon="true"
-              :showButtonBar="true"
-              :hideOnDateTimeSelect="true"
-              :touchUI="true"
-              :showOnFocus="false"
-              dateFormat="yy.mm.dd" />
+            <Calendar id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true"
+              :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
+          </div>
+          <div>
+            <Checkbox v-model="isStamped" inputId="stamp" name="stamp" :binary="true" />
+            <label for="stamp" class="ml-2"> Timestamp </label>
           </div>
         </div>
         <div class="mt-3 mb-3">
@@ -65,6 +50,7 @@ const selection = String(vuerouter.params.id);
 const userinput = ref('');
 const content = ref('');
 const userdate = ref();
+const isStamped = ref(false);
 const posts = reactive([] as Array<IPost>);
 const cats = reactive([] as Array<ICat>);
 const editor = helpers.setupEditor(content.value);
@@ -91,16 +77,22 @@ const handleClick = async () => {
     const content = editor.value?.getJSON();
     const realContent = editor.value?.getText();
     // console.log("click!", userinput.value, content);
-    const { data } = await axios.post('/api/save', {
+
+    const payload = {
       title: userinput.value,
       date: userdate.value,
       content: realContent ? content : '',
-    });
+      stamped: isStamped.value,
+    };
+    const { data } = await axios.post('/api/note', payload);
+    console.log("input", payload);
+    
     if (data?.id) {
       console.log(data);
       const newPost = {
         content: realContent ? content : '',
         title: userinput.value,
+        stamped: data.stamped,
         deleted: false,
         id: data.id,
         time: String(Date.now()),
@@ -138,6 +130,7 @@ const selectGroup = (id: number) => {
 .title {
   font-weight: bold;
 }
+
 label {
   margin: 0 0.5em;
   font-weight: bold;
@@ -157,7 +150,8 @@ label {
 
 .ProseMirror {
   padding: 15px;
-  > * + * {
+
+  >*+* {
     margin-top: 0.75em;
   }
 }

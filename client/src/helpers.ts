@@ -8,13 +8,25 @@ const html = (x: any) =>
   x && x !== '""' ? generateHTML(typeof x === 'string' ? JSON.parse(x) : x, [StarterKit, Link]) : '';
 
 const renderDate = (x: any) => {
+  const ms = [
+    '⛄', // january
+    '☃️',// februrary
+    '☂️', // march
+    '🐤', // april
+    '🌳', // may
+    '🍋', // june
+    '🍊', // july
+    '🍎', // august
+    '🐓', // september
+    '🎃', // october
+    '☔', // november
+    '🎄', // december
+  ];
   if (x) {
-    return new Date(x)
-      .toLocaleString('en-UK', { timeZone: 'Europe/Minsk' })
-      .split('/')
-      .join('.')
-      .replace(',', '')
-      .slice(0, -3);
+    const utc = new Date(x);
+    const offset = utc.getTimezoneOffset();
+    const local = new Date(utc.getTime() - offset * 60000);
+    return local.toLocaleString('en-UK').split('/').join('.').replace(',', '').slice(0, -3);
   }
 };
 

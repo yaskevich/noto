@@ -22,7 +22,8 @@ const schemePosts = `CREATE TABLE IF NOT EXISTS posts (
   [title] TEXT,
   [content] TEXT,
   [deleted] BOOLEAN DEFAULT FALSE,
-  [faved] BOOLEAN DEFAULT FALSE
+  [faved] BOOLEAN DEFAULT FALSE,
+  [stamped] BOOLEAN DEFAULT FALSE
   )`;
 
 const schemeCats = `CREATE TABLE IF NOT EXISTS cats (
@@ -55,17 +56,11 @@ app.use(express.static("public"))
 //   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 // });
 
-app.post("/api/save", async (req, res) => {
-  // console.log(req.body)
-  // const result = db.data.posts.push({
-  //   date: req.body.date,
-  //   time: Date.now(),
-  // })
-  // date('now'),
-  const result = await db.run(`INSERT INTO posts (title, content, date) VALUES ( ?, json(?), ?)`, req.body.title, JSON.stringify(req.body.content), req.body.date);
-  // console.log("result", result);
-  res.json({ id:  result.lastID })
-})
+// app.post("/api/save", async (req, res) => {
+//   const result = await db.run(`INSERT INTO posts (title, content, date) VALUES ( ?, json(?), ?)`, req.body.title, JSON.stringify(req.body.content), req.body.date);
+//   // console.log("result", result);
+//   res.json({ id:  result.lastID })
+// })
 
 app.get("/api/data", async(req, res) => {
   const posts = await db.all(`SELECT * FROM posts`);
@@ -86,7 +81,7 @@ app.post("/api/note", async(req, res) => {
     const result = await db.run(`UPDATE posts SET title = ?, date = ?, content = json(?) WHERE id = ?`, [req.body.title, req.body.date, JSON.stringify(req.body.content), req.body.id]);
     response = { id:  req.body.id };
   } else {
-    const result  = await db.run(`INSERT INTO posts (title, date, content) VALUES ( ?, ?, json(?))`, [req.body.title, req.body.date, JSON.stringify(req.body.content)]);
+    const result  = await db.run(`INSERT INTO posts (title, date, content, stamped) VALUES ( ?, ?, json(?), ?)`, [req.body.title, req.body.date || null, JSON.stringify(req.body.content), req.body.stamped]);
     response = { id: result.lastID};
   }
   res.json(response);

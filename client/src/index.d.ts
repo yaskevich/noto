@@ -35,5 +35,6 @@ declare global {
     time: string;
     deleted: boolean;
     faved: boolean;
+    stamped: boolean;
   }
 }
