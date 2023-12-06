@@ -16,7 +16,7 @@
             <Calendar id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true"
               :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
           </div>
-          <div>
+          <div class="p-2">
             <Checkbox v-model="isStamped" inputId="stamp" name="stamp" :binary="true" />
             <label for="stamp" class="ml-2"> Timestamp </label>
           </div>
@@ -38,7 +38,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount, defineProps } from 'vue';
+import { ref, reactive, onBeforeMount } from 'vue';
 import axios from 'axios';
 import Unit from './Unit.vue';
 import helpers from '../helpers';

@@ -1,14 +1,16 @@
 <template>
-  <div class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black; margin: 0 auto"
+  <div class="shadow-11 item p-2 mb-3 text-left" style="border: 1px dashed black; margin: 0 auto;" v-if="!item?.deleted"
     :title="helpers.renderDate(item?.time)">
     <div class="flex">
       <div class="mt-2">
-        <span class="p-1" v-if="item.date" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.date) }}</span>
+        <span class="p-1" v-if="item.date" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.date)
+        }}</span>
         <i class="pi pi-clock p-1" v-if="item.stamped" style="color:green"></i>
         <span>{{ helpers.renderDate(item.time) }}</span>
         <span class="title p-1">{{ item.title }}</span>
       </div>
       <div class="ml-auto">
+        <Button icon="pi pi-times-circle" severity="danger" class="p-button-text" @click="remove(item)" />
         <Button :icon="`pi pi-heart${item?.faved ? '-fill' : ''}`" class="p-button-text" @click="addToFavs(item)" />
         <Button icon="pi pi-pencil" class="p-button-text" @click="goToNote(item.id)" />
       </div>
@@ -35,6 +37,12 @@ const goToNote = (id: number) => {
   router.push(`/note/${id}`);
 };
 
+const remove = async (post: IPost) => {
+  item.deleted = true;
+  const { data } = await axios.delete(`/api/note/${post.id}`);
+  console.log(data);
+};
+
 const addToFavs = async (item: IPost) => {
   console.log('like!');
   item.faved = !item.faved;
@@ -42,3 +50,10 @@ const addToFavs = async (item: IPost) => {
   console.log(data);
 };
 </script>
+
+
+<style>
+.content {
+  padding: 5px;
+}
+</style>

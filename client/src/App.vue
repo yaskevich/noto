@@ -3,7 +3,8 @@
     <div id="nav">
       <router-link to="/">Home</router-link> | <router-link to="/deadlines">Deadlines</router-link> |
       <router-link to="/home/favs">Favs</router-link> |
-      <router-link to="/persons">Persons</router-link>
+      <router-link to="/persons">Persons</router-link> |
+      <router-link to="/journal">Journal</router-link>
       <!-- | -->
       <!-- <router-link to="/about">About</router-link> -->
     </div>
@@ -39,7 +40,7 @@
   margin: auto;
 }
 
-p > a {
+p>a {
   /* These are technically the same, but use both */
   overflow-wrap: break-word;
   word-wrap: break-word;
