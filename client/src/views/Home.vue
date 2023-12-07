@@ -80,7 +80,7 @@ const handleClick = async () => {
 
     const payload = {
       title: userinput.value,
-      date: userdate.value,
+      alarm: userdate.value,
       content: realContent ? content : '',
       stamped: isStamped.value,
     };
@@ -96,7 +96,7 @@ const handleClick = async () => {
         deleted: false,
         id: data.id,
         time: String(Date.now()),
-        date: userdate.value,
+        alarm: userdate.value,
       } as IPost;
 
       posts.unshift(newPost);

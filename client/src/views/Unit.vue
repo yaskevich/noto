@@ -3,7 +3,7 @@
     :title="helpers.renderDate(item?.time)">
     <div class="flex">
       <div class="mt-2">
-        <span class="p-1" v-if="item.date" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.date)
+        <span class="p-1" v-if="item.alarm" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.alarm)
         }}</span>
         <i class="pi pi-clock p-1" v-if="item.stamped" style="color:green"></i>
         <span>{{ helpers.renderDate(item.time) }}</span>

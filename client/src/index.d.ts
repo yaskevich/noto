@@ -13,7 +13,7 @@ declare global {
     meta: string;
     type: string;
     time: string;
-    date: Date;
+    alarm: Date;
     content: string;
   }
 
@@ -30,7 +30,7 @@ declare global {
   interface IPost {
     title: string;
     id: number;
-    date: Date;
+    alarm: Date;
     content: Object;
     time: string;
     deleted: boolean;

@@ -17,7 +17,7 @@ const db = await open({ filename: path.join(__dirname, '..', 'data.db'), driver:
 const schemePosts = `CREATE TABLE IF NOT EXISTS posts (
   [id] integer NOT NULL PRIMARY KEY UNIQUE,
   [time] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  [date] DATETIME,
+  [alarm] DATETIME,
   [title] TEXT,
   [content] TEXT,
   [deleted] BOOLEAN DEFAULT FALSE,
@@ -56,7 +56,7 @@ app.use(express.static('public'));
 // });
 
 // app.post("/api/save", async (req, res) => {
-//   const result = await db.run(`INSERT INTO posts (title, content, date) VALUES ( ?, json(?), ?)`, req.body.title, JSON.stringify(req.body.content), req.body.date);
+//   const result = await db.run(`INSERT INTO posts (title, content, alarm) VALUES ( ?, json(?), ?)`, req.body.title, JSON.stringify(req.body.content), req.body.alarm);
 //   // console.log("result", result);
 //   res.json({ id:  result.lastID })
 // })
@@ -77,17 +77,17 @@ app.post('/api/note', async (req, res) => {
   let response = {};
   console.log('req.body', req.body);
   if (req.body.id) {
-    const result = await db.run(`UPDATE posts SET title = ?, date = ?, content = json(?) WHERE id = ?`, [
+    const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?) WHERE id = ?`, [
       req.body.title,
-      req.body.date,
+      req.body.alarm,
       JSON.stringify(req.body.content),
       req.body.id,
     ]);
     response = { id: req.body.id };
   } else {
-    const result = await db.run(`INSERT INTO posts (title, date, content, stamped) VALUES ( ?, ?, json(?), ?)`, [
+    const result = await db.run(`INSERT INTO posts (title, alarm, content, stamped) VALUES ( ?, ?, json(?), ?)`, [
       req.body.title,
-      req.body.date || null,
+      req.body.alarm || null,
       JSON.stringify(req.body.content),
       req.body.stamped,
     ]);
@@ -136,12 +136,12 @@ app.post('/api/person', async (req, res) => {
 });
 
 app.get('/api/deadlines', async (req, res) => {
-  const deadlines = await db.all(`SELECT * FROM posts where date > date('now') AND deleted IS NOT TRUE`);
+  const deadlines = await db.all(`SELECT * FROM posts where alarm > date('now') AND deleted IS NOT TRUE`);
   res.json(deadlines);
 });
 
 app.get('/api/dated', async (req, res) => {
-  const posts = await db.all(`SELECT * FROM posts WHERE (stamped = 1 OR date is not null) AND deleted IS NOT TRUE`);
+  const posts = await db.all(`SELECT * FROM posts WHERE (stamped = 1 OR alarm is not null) AND deleted IS NOT TRUE`);
   res.json(posts);
 });
 

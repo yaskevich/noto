@@ -17,8 +17,8 @@ onBeforeMount(async () => {
   Object.assign(
     posts,
     data?.sort((a: any, b: any) => {
-      const atime = a.stamped ? a.time : a.date;
-      const btime = b.stamped ? b.time : b.date;
+      const atime = a.stamped ? a.time : a.alarm;
+      const btime = b.stamped ? b.time : b.alarm;
       return btime.localeCompare(atime);
     })
   );

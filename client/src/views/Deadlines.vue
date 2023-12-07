@@ -17,7 +17,7 @@ onBeforeMount(async () => {
   // console.log(data);
   Object.assign(
     posts,
-    data?.sort((a: any, b: any) => a.date.localeCompare(b.date))
+    data?.sort((a: any, b: any) => a.alarm.localeCompare(b.alarm))
   );
   // console.log(posts);
 });

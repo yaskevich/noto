@@ -13,7 +13,7 @@
       <!-- <label for="time24">Date time</label> -->
       <Calendar
         id="time24"
-        v-model="note.date"
+        v-model="note.alarm"
         :showTime="true"
         :showIcon="true"
         :showButtonBar="true"
@@ -46,7 +46,7 @@ onBeforeMount(async () => {
   if (id) {
     const config = { params: { id: id } };
     const { data } = await axios.get('/api/note', config);
-    data.date = new Date(data.date);
+    data.alarm = new Date(data.alarm);
     Object.assign(note, data);
     const ttInstance = (contentRef.value as any).editor;
     console.log(data.content);
