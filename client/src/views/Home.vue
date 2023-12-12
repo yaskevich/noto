@@ -1,29 +1,40 @@
 <template>
   <div>
-    <!-- <h2>Notes</h2> -->
-    <div class="mb-6">
-      <Button :label="item.title" @click="selectGroup(key)" v-for="(item, key) in cats" class="mr-4 p-button-help"
-        :key="key" />
+    <div class="flex flex-wrap gap-3 mb-4">
+      <div class="flex align-items-center">
+        <RadioButton v-model="cat" inputId="category" name="cat" :value="0" @change="changeCategory(0)" />
+        <label for="category" class="ml-2">
+          <Button :disabled="true" label="ALL" @click="handleClick(0)" class="p-button-help" size="small" />
+        </label>
+        <template v-for="(item, key) in cats" :key="key">
+          <RadioButton v-model="cat" inputId="category" name="cat" :value="item.id" @change="changeCategory(item.id)" />
+          <label for="category" class="ml-2">
+            <Button :label="item.title" @click="handleClick(item.id)" class="p-button-help" size="small" />
+          </label>
+        </template>
+        <Badge :value="posts.length" size="xlarge" severity="warning" class="ml-2"></Badge>
+
+      </div>
     </div>
     <div class="text-center">
-      <div class="mb-6" style="border: 1px solid red">
-        <div class="mt-3">
+      <div class="mb-4 p-2" style="background-color: rgba(211, 211, 211, 0.279);">
+        <div class="">
           <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent"
-            class="p-d-block p-mx-auto" @keyup.enter="handleClick" autocomplete="off" />
-          <Button label="Save" @click="handleClick" />
-          <div class="mt-2" v-if="!isStamped">
+            class="p-d-block p-mx-auto" @keyup.enter="handleClick(0)" autocomplete="off" />
+          <Button label="Save" @click="handleClick(0)" />
+          <div class="mt-2">
             <!-- <label for="time24">Date time</label> -->
             <Calendar id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true"
               :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
           </div>
           <div class="p-2">
-            <Checkbox v-model="isStamped" inputId="stamp" name="stamp" :binary="true" />
-            <label for="stamp" class="ml-2"> Timestamp </label>
+            <Checkbox v-model="isStamped" inputId="stamp" name="stamp" :binary="true" @click="enableStamped" />
+            <label for="stamp" class="ml-2"> Timestamped </label>
           </div>
         </div>
-        <div class="mt-3 mb-3">
+        <div class="mt-2">
           <div v-if="editor">
-            <div>
+            <div class="mb-2">
               <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">setLink</button>
               <button @click="editor?.chain().focus().unsetLink().run()" :disabled="!editor.isActive('link')">
                 unsetLink
@@ -33,12 +44,12 @@
           </div>
         </div>
       </div>
-      <Unit v-for="entry in posts" :post="entry" />
+      <Unit v-for="entry in posts" :post="entry" :categories="cats" :key="entry.id" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount } from 'vue';
+import { ref, reactive, onBeforeMount, toRaw } from 'vue';
 import axios from 'axios';
 import Unit from './Unit.vue';
 import helpers from '../helpers';
@@ -51,56 +62,78 @@ const userinput = ref('');
 const content = ref('');
 const userdate = ref();
 const isStamped = ref(false);
-const posts = reactive([] as Array<IPost>);
+const posts = ref([] as Array<IPost>);
 const cats = reactive([] as Array<ICat>);
 const editor = helpers.setupEditor(content.value);
+const cat = ref(0);
+
+const getPosts = async () => {
+  const { data } = await axios.get('/api/data', { params: { cat: cat.value } });
+  // console.log(data);
+  if (data?.posts?.length) {
+    const processed = data?.posts
+      ?.sort((a: any, b: any) => b.time - a.time)
+      .reverse()
+      .filter((x: any) => (selection === 'favs' ? x?.faved : x.id))
+      // .slice(0, 2)
+      ;
+    posts.value = processed;
+  } else {
+    posts.value.splice(0);
+  }
+  Object.assign(cats, data.cats);
+}
 
 onBeforeMount(async () => {
-  const { data } = await axios.get('/api/data');
-  // console.log(data);
-  const processed = data?.posts
-    ?.sort((a: any, b: any) => b.time - a.time)
-    .reverse()
-    .filter((x: any) => (selection === 'favs' ? x?.faved : x.id));
-  Object.assign(posts, processed);
-  Object.assign(cats, data.cats);
+  await getPosts();
 });
+
+const changeCategory = async (id: number) => {
+  cat.value = id;
+  await getPosts();
+};
+
+const enableStamped = () => {
+  if (!userdate.value) {
+    userdate.value = (new Date).toISOString();
+  }
+};
 
 const inputEvent = () => {
   // userinput.value = userinput.value.replace(/[^'’0-9а-яёўіa-z\- ]/gi, '');
   // console.log(userinput);
 };
 
-const handleClick = async () => {
+const handleClick = async (id: number) => {
   // console.log("date", userdate.value);
-  if (userinput.value) {
-    const content = editor.value?.getJSON();
-    const realContent = editor.value?.getText();
-    // console.log("click!", userinput.value, content);
+  const realContent = editor.value?.getText();
 
-    const payload = {
+  if (realContent || userinput.value) {
+    const content = editor.value?.getJSON();
+    const newPost = {
       title: userinput.value,
-      alarm: userdate.value,
       content: realContent ? content : '',
       stamped: isStamped.value,
-    };
-    const { data } = await axios.post('/api/note', payload);
-    console.log("input", payload);
-    
+      time: String(Date.now()),
+      faved: false,
+      deleted: false,
+      cat: id || cat.value || 1,
+    } as IPost;
+    if (userdate.value) {
+      if (isStamped.value) {
+        newPost.time = userdate.value;
+      } else {
+        newPost.alarm = userdate.value;
+      }
+    }
+    const { data } = await axios.post('/api/note', newPost);
+    // console.log("input", newPost);
     if (data?.id) {
-      console.log(data);
-      const newPost = {
-        content: realContent ? content : '',
-        title: userinput.value,
-        stamped: data.stamped,
-        deleted: false,
-        id: data.id,
-        time: String(Date.now()),
-        alarm: userdate.value,
-      } as IPost;
-
-      posts.unshift(newPost);
+      newPost.id = data.id;
+      posts.value = [newPost, ...posts.value];
       userinput.value = '';
+      userdate.value = null;
+      isStamped.value = false;
       editor.value?.commands.setContent('');
     }
   }
@@ -122,9 +155,6 @@ const setLink = () => {
   editor.value?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
 };
 
-const selectGroup = (id: number) => {
-  console.log('group', id);
-};
 </script>
 <style lang="scss">
 .title {
