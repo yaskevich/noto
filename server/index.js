@@ -17,12 +17,13 @@ const db = await open({ filename: path.join(__dirname, '..', 'data.db'), driver:
 const schemePosts = `CREATE TABLE IF NOT EXISTS posts (
   [id] integer NOT NULL PRIMARY KEY UNIQUE,
   [time] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  [alarm] DATETIME,
+  [alarm] TIMESTAMP,
   [title] TEXT,
   [content] TEXT,
   [deleted] BOOLEAN DEFAULT FALSE,
   [faved] BOOLEAN DEFAULT FALSE,
-  [stamped] BOOLEAN DEFAULT FALSE
+  [stamped] BOOLEAN DEFAULT FALSE,
+  [cat] INTEGER NOT NULL DEFAULT 1
   )`;
 
 const schemeCats = `CREATE TABLE IF NOT EXISTS cats (
@@ -62,9 +63,17 @@ app.use(express.static('public'));
 // })
 
 app.get('/api/data', async (req, res) => {
-  const posts = await db.all(`SELECT * FROM posts WHERE deleted IS NOT TRUE`);
+  const cat = Number(req.query.cat);
+  const ext = cat ? 'AND cat = ' + cat : '';
+  const sql = `SELECT * FROM posts WHERE deleted IS NOT TRUE ${ext}`;
+  const posts = await db.all(sql);
   const cats = await db.all(`SELECT * FROM cats`);
   res.json({ posts, cats });
+});
+
+app.get('/api/cats', async (req, res) => {
+  const cats = await db.all(`SELECT * FROM cats`);
+  res.json(cats);
 });
 
 app.get('/api/note', async (req, res) => {
@@ -77,20 +86,19 @@ app.post('/api/note', async (req, res) => {
   let response = {};
   console.log('req.body', req.body);
   if (req.body.id) {
-    const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?) WHERE id = ?`, [
+    const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?), cat = ? WHERE id = ?`, [
       req.body.title,
       req.body.alarm,
-      JSON.stringify(req.body.content),
+      req.body.content,
+      req.body.cat,
       req.body.id,
     ]);
     response = { id: req.body.id };
   } else {
-    const result = await db.run(`INSERT INTO posts (title, alarm, content, stamped) VALUES ( ?, ?, json(?), ?)`, [
-      req.body.title,
-      req.body.alarm || null,
-      JSON.stringify(req.body.content),
-      req.body.stamped,
-    ]);
+    const result = await db.run(
+      `INSERT INTO posts (title, alarm, content, stamped, cat) VALUES ( ?, ?, json(?), ?, ?)`,
+      [req.body.title, req.body.alarm || null, JSON.stringify(req.body.content), req.body.stamped, req.body.cat]
+    );
     response = { id: result.lastID };
   }
   res.json(response);
