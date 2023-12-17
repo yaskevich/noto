@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <Unit v-for="entry in posts" :post="entry" />
+    <Unit :categories="cats" v-for="entry in posts" :post="entry" />
   </div>
 </template>
   
@@ -10,10 +10,16 @@ import axios from 'axios';
 import Unit from './Unit.vue';
 
 const posts = reactive([] as Array<IPost>);
+const cats = reactive([] as Array<ICat>);
 
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/dated');
   // console.log(data);
+  const res = await axios.get('/api/cats');
+  Object.assign(
+    cats,
+    res.data
+  );
   Object.assign(
     posts,
     data?.sort((a: any, b: any) => {
