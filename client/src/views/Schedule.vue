@@ -2,7 +2,7 @@
   <div class="text-center">
     <!-- <h1>My Calendar</h1> -->
     <Toast />
-    <calendar-view :show-date="showDate" class="mb-2 theme-default holiday-us-traditional holiday-us-official"
+    <calendar-view :show-date="showDate" class="mb-2 theme-default holiday-us-traditional holiday-us-official" :startingDayOfWeek="1"
       @click-date="onClickDay" :items="items">
       <template #header="{ headerProps }">
         <calendar-view-header :header-props="headerProps" @input="setShowDate" />
