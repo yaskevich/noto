@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Home from './views/Home.vue';
-import Deadlines from './views/Deadlines.vue';
+import Schedule from './views/Schedule.vue';
 import Journal from './views/Journal.vue';
 import Persons from './views/Persons.vue';
 import Person from './views/Person.vue';
+import Cats from './views/Cats.vue';
 import Note from './views/Note.vue';
 
 const routes = [
@@ -14,9 +15,9 @@ const routes = [
     component: Home,
   },
   {
-    path: '/deadlines',
-    name: 'Deadlines',
-    component: Deadlines,
+    path: '/schedule',
+    name: 'Schedule',
+    component: Schedule,
   },
   {
     path: '/journal',
@@ -27,6 +28,11 @@ const routes = [
     path: '/persons',
     name: 'Persons',
     component: Persons,
+  },
+  {
+    path: '/cats',
+    name: 'Cats',
+    component: Cats,
   },
   {
     path: '/person/:id?',
