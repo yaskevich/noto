@@ -86,18 +86,19 @@ app.post('/api/note', async (req, res) => {
   let response = {};
   console.log('req.body', req.body);
   if (req.body.id) {
-    const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?), cat = ? WHERE id = ?`, [
+    const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?), cat = ?, time =? WHERE id = ?`, [
       req.body.title,
       req.body.alarm,
       req.body.content,
       req.body.cat,
+      req.body.time,
       req.body.id,
     ]);
     response = { id: req.body.id };
   } else {
     const result = await db.run(
-      `INSERT INTO posts (title, alarm, content, stamped, cat) VALUES ( ?, ?, json(?), ?, ?)`,
-      [req.body.title, req.body.alarm || null, JSON.stringify(req.body.content), req.body.stamped, req.body.cat]
+      `INSERT INTO posts (title, alarm, content, stamped, cat, time) VALUES ( ?, ?, json(?), ?, ?, ?)`,
+      [req.body.title, req.body.alarm || null, JSON.stringify(req.body.content), req.body.stamped, req.body.cat, req.body.time]
     );
     response = { id: result.lastID };
   }
