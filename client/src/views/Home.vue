@@ -1,22 +1,21 @@
 <template>
   <div>
-    <div class="flex flex-wrap gap-3 mb-4">
-      <div class="flex align-items-center">
-        <RadioButton v-model="cat" inputId="category" name="cat" :value="0" @change="changeCategory(0)" />
-        <label for="category" class="ml-2">
-          <Button :disabled="true" label="ALL" @click="handleClick(0)" class="p-button-help" size="small" />
-        </label>
-        <template v-for="(item, key) in cats" :key="key">
-          <RadioButton v-model="cat" inputId="category" name="cat" :value="item.id" @change="changeCategory(item.id)" />
+    <div class="text-center" v-show="posts?.length">
+      <div class="flex flex-wrap gap-3 mb-4">
+        <div class="flex align-items-center">
+          <RadioButton v-model="cat" inputId="category" name="cat" :value="0" @change="changeCategory(0)" />
           <label for="category" class="ml-2">
-            <Button :label="item.title" @click="handleClick(item.id)" class="p-button-help" size="small" />
+            <Button :disabled="true" label="ALL" @click="handleClick(0)" class="p-button-help" size="small" />
           </label>
-        </template>
-        <Badge :value="posts.length" size="xlarge" severity="warning" class="ml-2"></Badge>
-
+          <template v-for="(item, key) in cats" :key="key">
+            <RadioButton v-model="cat" inputId="category" name="cat" :value="item.id" @change="changeCategory(item.id)" />
+            <label for="category" class="ml-2">
+              <Button :label="item.title" @click="handleClick(item.id)" class="p-button-help" size="small" />
+            </label>
+          </template>
+          <Badge :value="posts.length" severity="warning" class="ml-2"></Badge>
+        </div>
       </div>
-    </div>
-    <div class="text-center">
       <div class="mb-4 p-2" style="background-color: rgba(211, 211, 211, 0.279);">
         <div class="">
           <InputText id="search" aria-describedby="search-help" type="text" v-model="userinput" @input="inputEvent"
@@ -24,7 +23,7 @@
           <Button label="Save" @click="handleClick(0)" />
           <div class="mt-2">
             <!-- <label for="time24">Date time</label> -->
-            <Calendar id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true"
+            <Calendar ref="calRef" id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true"
               :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
           </div>
           <div class="p-2">
@@ -66,15 +65,17 @@ const posts = ref([] as Array<IPost>);
 const cats = reactive([] as Array<ICat>);
 const editor = helpers.setupEditor(content.value);
 const cat = ref(0);
+const calRef = ref(null as any);
+
 
 const getPosts = async () => {
   const { data } = await axios.get('/api/data', { params: { cat: cat.value } });
   // console.log(data);
   if (data?.posts?.length) {
     const processed = data?.posts
-      ?.sort((a: any, b: any) => b.time - a.time)
-      .reverse()
-      .filter((x: any) => (selection === 'favs' ? x?.faved : x.id))
+      // ?.sort((a: any, b: any) => b.time - a.time)
+      // .reverse()
+      // .filter((x: any) => (selection === 'favs' ? x?.faved : x.id))
       // .slice(0, 2)
       ;
     posts.value = processed;
@@ -94,8 +95,9 @@ const changeCategory = async (id: number) => {
 };
 
 const enableStamped = () => {
-  if (!userdate.value) {
-    userdate.value = (new Date).toISOString();
+  if (!userdate.value && calRef?.value) {
+    calRef.value.updateModelTime();
+    // userdate.value 1= (new Date).toISOString();
   }
 };
 
