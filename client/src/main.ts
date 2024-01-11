@@ -27,6 +27,10 @@ import ScrollTop from 'primevue/scrolltop';
 import SplitButton from 'primevue/splitbutton';
 import Calendar from 'primevue/calendar';
 import Checkbox from 'primevue/checkbox';
+import RadioButton from 'primevue/radiobutton';
+import InputGroup from 'primevue/inputgroup';
+
+import ToastService from 'primevue/toastservice';
 
 // import "@fontsource/fira-sans-extra-condensed" // Defaults to weight 400 with normal variant.
 // import "@fontsource/fira-sans-extra-condensed/400-italic.css" // Italic variant.
@@ -37,6 +41,7 @@ import Checkbox from 'primevue/checkbox';
 createApp(App)
   .use(PrimeVue)
   .use(router)
+  .use(ToastService)
   .component('Dialog', Dialog)
   .component('Button', Button)
   .component('SplitButton', SplitButton)
@@ -58,4 +63,6 @@ createApp(App)
   .component('Tag', Tag)
   .component('Calendar', Calendar)
   .component('Checkbox', Checkbox)
+  .component('RadioButton', RadioButton)
+  .component('InputGroup', InputGroup)
   .mount('#app');
