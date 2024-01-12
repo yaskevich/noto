@@ -8,9 +8,11 @@ const html = (x: any) =>
   x && x !== '""' ? generateHTML(typeof x === 'string' ? JSON.parse(x) : x, [StarterKit, Link]) : '';
 
 const renderDate = (x: any) => {
+  const num = Number(x);
+
   const ms = [
     '⛄', // january
-    '☃️',// februrary
+    '☃️', // februrary
     '☂️', // march
     '🐤', // april
     '🌳', // may
@@ -23,9 +25,10 @@ const renderDate = (x: any) => {
     '🎄', // december
   ];
   if (x) {
-    const utc = new Date(x);
+    const utc = new Date(num ? num : x);
     const offset = utc.getTimezoneOffset();
-    const local = new Date(utc.getTime() - offset * 60000);
+    // const local = new Date(utc.getTime() - (num ? 0 : offset * 60000));
+    const local = new Date(utc.getTime());
     return local.toLocaleString('en-UK').split('/').join('.').replace(',', '').slice(0, -3);
   }
 };
