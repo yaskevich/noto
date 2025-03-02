@@ -1,26 +1,18 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import Checker from 'vite-plugin-checker'
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import Checker from 'vite-plugin-checker';
 
-// https://vitejs.dev/config/
+import Components from 'unplugin-vue-components/vite';
+import { PrimeVueResolver } from '@primevue/auto-import-resolver';
+
 export default defineConfig({
-  plugins: [vue(), Checker({ typescript: true }),
-  AutoImport({
-    imports: [
-      'vue',
-      {
-        'naive-ui': ['useDialog', 'useMessage', 'useNotification', 'useLoadingBar'],
-      },
-    ],
-  }),
-  Components({
-    resolvers: [NaiveUiResolver()]
-  })
-
-  ],
+  plugins: [
+    vue(), Checker({ typescript: true }),
+    Components({
+      resolvers: [
+        PrimeVueResolver()
+      ]
+    })],
   server: {
     port: 7777,
     proxy: {
@@ -31,6 +23,5 @@ export default defineConfig({
         ws: true,
       }
     }
-  },
-
+  }
 })
