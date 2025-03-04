@@ -86,19 +86,20 @@ app.post('/api/note', async (req, res) => {
   let response = {};
   console.log('req.body', req.body);
   if (req.body.id) {
-    const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?), cat = ?, time =? WHERE id = ?`, [
+    const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?), cat = ?, time =?, wholeday=? WHERE id = ?`, [
       req.body.title,
       req.body.alarm,
       req.body.content,
       req.body.cat,
       req.body.time,
+      req.body.wholeday,
       req.body.id,
     ]);
     response = { id: req.body.id };
   } else {
     const result = await db.run(
-      `INSERT INTO posts (title, alarm, content, stamped, cat, time) VALUES ( ?, ?, json(?), ?, ?, ?)`,
-      [req.body.title, req.body.alarm || null, JSON.stringify(req.body.content), req.body.stamped, req.body.cat, req.body.time]
+      `INSERT INTO posts (title, alarm, content, stamped, cat, time, wholeday) VALUES ( ?, ?, json(?), ?, ?, ?, ?)`,
+      [req.body.title, req.body.alarm || null, JSON.stringify(req.body.content), req.body.stamped, req.body.cat, req.body.time, req.body.wholeday]
     );
     response = { id: result.lastID };
   }
@@ -145,7 +146,7 @@ app.post('/api/person', async (req, res) => {
 });
 
 app.get('/api/deadlines', async (req, res) => {
-  const deadlines = await db.all(`SELECT * FROM posts where alarm > date('now') AND deleted IS NOT TRUE`);
+  const deadlines = await db.all(`SELECT * FROM posts where alarm > datetime('now', '-30 day') AND deleted IS NOT TRUE`);
   res.json(deadlines);
 });
 
