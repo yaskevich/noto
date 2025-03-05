@@ -4,7 +4,7 @@
     <Toast />
     <ToggleSwitch v-model="checked" />
     <calendar-view :show-date="showDate" class="mb-2 theme-default holiday-us-traditional holiday-us-official"
-      :startingDayOfWeek="1" @click-date="onClickDay" :items="items">
+      :startingDayOfWeek="1" @click-date="onClickDay" :items="posts">
       <template #header="{ headerProps }">
         <calendar-view-header :header-props="headerProps" @input="setShowDate" />
       </template>
@@ -56,7 +56,6 @@ const toast = useToast();
 const showDate = ref(new Date());
 const setShowDate = (d: any) => showDate.value = d;
 const posts = reactive([] as Array<IPost>);
-const items = reactive([]);
 const cats = reactive([] as Array<ICat>);
 
 const checked = ref(true);
@@ -90,14 +89,13 @@ const onClickDay = (date: any, calendarItems: any, windowEvent: Event) => {
 
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/deadlines');
-  const data2 = data.map((x: any) => ({ ...x, alarm: new Date(x.alarm) }));
+  const data2 = data.map((x: any) => ({ ...x, alarm: new Date(x.alarm), startDate: x.alarm, endDate: x.alarm, tooltip: x.content }));
   Object.assign(
     posts,
     data2
     // data2?.sort((a: any, b: any) => a.alarm.localeCompare(b.alarm))
   );
   // console.log(posts);
-  Object.assign(items, data2.map((x: any) => ({ ...x, startDate: x.alarm, endDate: x.alarm, tooltip: x.content })))
 
   const res = await axios.get('/api/cats');
   Object.assign(
@@ -151,6 +149,7 @@ const saveNote = async (date: any) => {
     // }
     const { data } = await axios.post('/api/note', newPost);
     console.log(data);
+    posts.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content });
   }
 };
 
