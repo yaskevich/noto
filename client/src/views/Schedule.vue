@@ -22,10 +22,7 @@
 
   <Dialog v-model:visible="visible" modal header="Save Note" :style="{ width: '25rem' }">
 
-    <div class="flex justify-end gap-2">
-      <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
-      <Button type="button" label="Save" @click="saveNote"></Button>
-
+    <div>
       <div v-if="editor">
         <div class="mb-2">
           <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">setLink</button>
@@ -34,6 +31,10 @@
           </button>
         </div>
         <editor-content :editor="editor" class="editor" />
+      </div>
+      <div>
+        <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
+        <Button type="button" label="Save" @click="saveNote"></Button>
       </div>
     </div>
   </Dialog>
@@ -64,6 +65,15 @@ const content = ref('');
 const editor = helpers.setupEditor(content.value);
 const curDate = ref();
 
+
+const getLastMinute = () => {
+  const dd = new Date(curDate.value.toISOString());
+  dd.setHours(dd.getHours() + 23);
+  dd.setMinutes(dd.getMinutes() + 59);
+  dd.setSeconds(dd.getSeconds() + 59);
+  return dd;
+};
+
 const onClickEvent = (val: any) => {
   // console.log(val);
   console.log(val.title, val.originalItem?.content, val.startDate);
@@ -76,6 +86,13 @@ const onClickDay = (date: any, calendarItems: any, windowEvent: Event) => {
     console.log("add event", date);
     visible.value = true;
     curDate.value = date;
+    const dt = getLastMinute();
+    const exPost = posts.find(x => String(x.alarm) === String(dt));
+    if (exPost?.id) {
+      editor.value?.commands.setContent(JSON.parse(exPost?.content) || '');
+    }
+
+
   } else {
     for (let item of calendarItems) {
       console.log(item);
@@ -117,14 +134,10 @@ const saveNote = async (date: any) => {
     day: "numeric",
   };
   const title = curDate.value.toLocaleDateString("ru-BY", options);
-  const time = Math.floor(curDate.value.getTime()) as any;
+  // const time = Math.floor(curDate.value.getTime()) as any;
   // const t = String(Date.now());
   // console.log(t, time);
 
-  const dd = new Date(curDate.value.toISOString());
-  dd.setHours(dd.getHours() + 23);
-  dd.setMinutes(dd.getMinutes() + 59);
-  dd.setSeconds(dd.getSeconds() + 59);
 
   if (realContent) {
     const content = editor.value?.getJSON();
@@ -133,7 +146,7 @@ const saveNote = async (date: any) => {
       content,
       stamped: true,
       time: String(Date.now()),
-      alarm: dd,
+      alarm: getLastMinute(),
       wholeday: true,
       faved: false,
       deleted: false,
