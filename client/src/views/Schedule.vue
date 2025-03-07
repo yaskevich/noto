@@ -61,8 +61,9 @@ const cats = reactive([] as Array<ICat>);
 
 const checked = ref(true);
 const visible = ref(false);
-const content = ref('');
-const editor = helpers.setupEditor(content.value);
+const thisPost = ref<IPost>();
+
+const editor = helpers.setupEditor(thisPost?.value?.content || '');
 const curDate = ref();
 
 
@@ -89,10 +90,9 @@ const onClickDay = (date: any, calendarItems: any, windowEvent: Event) => {
     const dt = getLastMinute();
     const exPost = posts.find(x => String(x.alarm) === String(dt));
     if (exPost?.id) {
+      thisPost.value = exPost;
       editor.value?.commands.setContent(JSON.parse(exPost?.content) || '');
     }
-
-
   } else {
     for (let item of calendarItems) {
       console.log(item);
@@ -112,13 +112,9 @@ onBeforeMount(async () => {
     data2
     // data2?.sort((a: any, b: any) => a.alarm.localeCompare(b.alarm))
   );
-  // console.log(posts);
 
   const res = await axios.get('/api/cats');
-  Object.assign(
-    cats,
-    res.data
-  );
+  Object.assign(cats, res.data);
 });
 
 
@@ -126,33 +122,46 @@ const saveNote = async (date: any) => {
   visible.value = false;
   const realContent = editor.value?.getText();
   console.log(realContent);
-  content.value = '';
   const options = {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   };
+
+  console.log(thisPost.value);
+
   const title = curDate.value.toLocaleDateString("ru-BY", options);
   // const time = Math.floor(curDate.value.getTime()) as any;
   // const t = String(Date.now());
   // console.log(t, time);
 
-
+  const content = editor.value?.getJSON()
   if (realContent) {
-    const content = editor.value?.getJSON();
-    const newPost = {
-      title,
-      content,
-      stamped: true,
-      time: String(Date.now()),
-      alarm: getLastMinute(),
-      wholeday: true,
-      faved: false,
-      deleted: false,
-      cat: 1,
-    } as IPost;
-
+    if (thisPost.value?.id) {
+      console.log(thisPost.value);
+      const exPost = posts.find(x => x.id === thisPost.value?.id);
+      if (exPost?.id) {
+        exPost.content = JSON.stringify(content);
+        const { data } = await axios.post('/api/note', { ...thisPost.value, content });
+        console.log(data);
+      }
+    } else {
+      const newPost = {
+        title,
+        content,
+        stamped: true,
+        time: String(Date.now()),
+        alarm: getLastMinute(),
+        wholeday: true,
+        faved: false,
+        deleted: false,
+        cat: 1,
+      } as IPost;
+      const { data } = await axios.post('/api/note', newPost);
+      console.log(data);
+      posts.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content, id: data.id });
+    }
     // if (userdate.value) {
     //   if (isStamped.value) {
     //     newPost.time = userdate.value;
@@ -160,9 +169,6 @@ const saveNote = async (date: any) => {
     //     newPost.alarm = userdate.value;
     //   }
     // }
-    const { data } = await axios.post('/api/note', newPost);
-    console.log(data);
-    posts.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content });
   }
 };
 
