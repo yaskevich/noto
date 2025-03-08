@@ -31,6 +31,16 @@ const schemeCats = `CREATE TABLE IF NOT EXISTS cats (
   [title] TEXT
   )`;
 
+const schemeTags = `CREATE TABLE IF NOT EXISTS tags (
+    [id] integer NOT NULL PRIMARY KEY UNIQUE,
+    [title] TEXT
+    )`;
+
+const schemeTagsToPosts = `CREATE TABLE IF NOT EXISTS tagsposts (
+    [post_id] integer NOT NULL,
+    [tag_id] integer NOT NULL
+    )`;
+
 const schemePersons = `CREATE TABLE IF NOT EXISTS persons (
   [id] integer NOT NULL PRIMARY KEY UNIQUE,
   [bday] DATETIME,
@@ -39,9 +49,11 @@ const schemePersons = `CREATE TABLE IF NOT EXISTS persons (
   [deleted] BOOLEAN DEFAULT FALSE
   )`;
 
-const resultPosts = await db.exec(schemePosts);
-const resultCats = await db.exec(schemeCats);
-const resultPersons = await db.exec(schemePersons);
+await db.exec(schemePosts);
+await db.exec(schemeCats);
+await db.exec(schemePersons);
+await db.exec(schemeTags);
+await db.exec(schemeTagsToPosts);
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -89,7 +101,7 @@ app.post('/api/note', async (req, res) => {
     const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?), cat = ?, time =?, wholeday=? WHERE id = ?`, [
       req.body.title,
       req.body.alarm,
-      req.body.content,
+      JSON.stringify(req.body.content),
       req.body.cat,
       req.body.time,
       req.body.wholeday,
