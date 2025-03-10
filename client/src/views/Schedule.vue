@@ -8,11 +8,10 @@
       <template #header="{ headerProps }">
         <calendar-view-header :header-props="headerProps" @input="setShowDate" />
       </template>
-
       <template #item="{ value, week, top }">
         <!-- span1 -->
-        <div style="top: 20px; border:none;background-color: transparent; color: red;cursor: pointer;"
-          :title="value.title"
+        <div class="dot" :style="`color: ${value.originalItem
+          .wholeday ? 'green' : 'red'}`" :title="value.title"
           :class="value.classes.filter((x: string) => x !== 'span1').join(' ') + ' cv-item ml-' + (value.itemRow ? value.itemRow + 1 : 0)"
           @click="onClickEvent(value)">●</div>
       </template>
@@ -23,6 +22,7 @@
   <Dialog v-model:visible="visible" modal header="Save Note" :style="{ width: '25rem' }">
 
     <div>
+
       <div v-if="editor">
         <div class="mb-2">
           <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">setLink</button>
@@ -33,6 +33,9 @@
         <editor-content :editor="editor" class="editor" />
       </div>
       <div>
+        <MultiSelect v-model="selTags" :options="tags" optionLabel="title" filter placeholder="Select tags"
+          :maxSelectedLabels="3" class="w-full md:w-80" />
+
         <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
         <Button type="button" label="Save" @click="saveNote"></Button>
       </div>
@@ -58,14 +61,13 @@ const showDate = ref(new Date());
 const setShowDate = (d: any) => showDate.value = d;
 const posts = reactive([] as Array<IPost>);
 const cats = reactive([] as Array<ICat>);
-
+const tags = reactive([] as Array<ICat>);
 const checked = ref(true);
 const visible = ref(false);
 const thisPost = ref<IPost>();
-
 const editor = helpers.setupEditor(thisPost?.value?.content || '');
 const curDate = ref();
-
+const selTags = ref();
 
 const getLastMinute = () => {
   const dd = new Date(curDate.value.toISOString());
@@ -88,11 +90,13 @@ const onClickDay = (date: any, calendarItems: any, windowEvent: Event) => {
     visible.value = true;
     curDate.value = date;
     const dt = getLastMinute();
+    // thisPost.value = {} as IPost;
+    
     const exPost = posts.find(x => String(x.alarm) === String(dt));
     if (exPost?.id) {
       thisPost.value = exPost;
-      editor.value?.commands.setContent(JSON.parse(exPost?.content) || '');
     }
+    editor.value?.commands.setContent(exPost?.content && JSON.parse(exPost?.content) || '');
   } else {
     for (let item of calendarItems) {
       console.log(item);
@@ -115,6 +119,12 @@ onBeforeMount(async () => {
 
   const res = await axios.get('/api/cats');
   Object.assign(cats, res.data);
+
+  const res2 = await axios.get('/api/tags');
+  Object.assign(
+    tags,
+    res2.data
+  );
 });
 
 
@@ -200,5 +210,12 @@ const setLink = () => {
 .today {
   /* border: 2px solid red; */
   background-color: rgba(255, 182, 193, 0.496);
+}
+
+.dot {
+  top: 20px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
 }
 </style>
