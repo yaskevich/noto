@@ -5,6 +5,7 @@ import Journal from './views/Journal.vue';
 import Persons from './views/Persons.vue';
 import Person from './views/Person.vue';
 import Cats from './views/Cats.vue';
+import Tags from './views/Tags.vue';
 import Note from './views/Note.vue';
 
 const routes = [
@@ -33,6 +34,11 @@ const routes = [
     path: '/cats',
     name: 'Cats',
     component: Cats,
+  },
+  {
+    path: '/tags',
+    name: 'Tags',
+    component: Tags,
   },
   {
     path: '/person/:id?',

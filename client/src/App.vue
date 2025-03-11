@@ -6,7 +6,8 @@
       <router-link to="/home/favs">Favs</router-link> |
       <router-link to="/persons">Persons</router-link> |
       <router-link to="/journal">Journal</router-link> |
-      <router-link to="/cats">Categories</router-link>
+      <router-link to="/cats">Categories</router-link> |
+      <router-link to="/tags">Tags</router-link>
       <!-- <router-link to="/about">About</router-link> -->
     </div>
     <router-view :key="$route.fullPath" />
