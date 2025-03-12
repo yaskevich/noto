@@ -3,7 +3,7 @@
     <Unit :categories="cats" v-for="entry in posts" :post="entry" />
   </div>
 </template>
-  
+
 <script setup lang="ts">
 import { reactive, onBeforeMount } from 'vue';
 import axios from 'axios';
@@ -20,15 +20,14 @@ onBeforeMount(async () => {
     cats,
     res.data
   );
+
   Object.assign(
     posts,
     data?.sort((a: any, b: any) => {
-      const atime = a.stamped ? a.time : a.alarm;
-      const btime = b.stamped ? b.time : b.alarm;
+      const atime = a.stamped ? (Number.isInteger(a.time) ? (new Date(a.time)).toISOString() : a.time) : a.alarm;
+      const btime = b.stamped ? (Number.isInteger(b.time) ? (new Date(b.time)).toISOString() : b.time) : b.alarm;
       return btime.localeCompare(atime);
     })
   );
-  // console.log(posts);
 });
 </script>
-  
