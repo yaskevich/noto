@@ -22,7 +22,6 @@
   <Dialog v-model:visible="visible" modal header="Save Note" :style="{ width: '25rem' }">
 
     <div>
-
       <div v-if="editor">
         <div class="mb-2">
           <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">setLink</button>
@@ -52,7 +51,7 @@ import helpers from '../helpers';
 import Unit from './Unit.vue';
 import { CalendarView, CalendarViewHeader } from 'vue-simple-calendar';
 import { EditorContent } from '@tiptap/vue-3';
-import "../../node_modules/vue-simple-calendar/dist/style.css";
+import "../../node_modules/vue-simple-calendar/dist/vue-simple-calendar.css";
 // The next two lines are optional themes
 // import "~vue-simple-calendar/dist/css/default.css"
 // import "~vue-simple-calendar/dist/css/holidays-us.css"
@@ -96,7 +95,7 @@ const onClickDay = (date: any, calendarItems: any, windowEvent: Event) => {
     if (exPost?.id) {
       thisPost.value = exPost;
     }
-    editor.value?.commands.setContent(exPost?.content && JSON.parse(exPost?.content) || '');
+    editor.value?.commands.setContent((exPost?.content && JSON.parse(exPost?.content) || ''));
   } else {
     for (let item of calendarItems) {
       console.log(item);
