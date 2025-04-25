@@ -29,12 +29,15 @@ declare global {
   }
   interface IPost {
     title: string;
-    id: number;
+    id?: number;
     alarm: Date;
-    content: Object;
+    content: any;
     time: string;
     deleted: boolean;
     faved: boolean;
     stamped: boolean;
+    cat: number;
+    full?: boolean;
+    wholeday?: boolean;
   }
 }

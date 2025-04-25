@@ -51,9 +51,13 @@ onBeforeMount(async () => {
 
 const handleClick = async () => {
   const datum = { ...note };
+  // if (datum.alarm){
+  //   datum.alarm = String(note.alarm.toJSON).slice(0, -5);
+  // }
   datum.cat = selectedCat.value;
-  datum.content = JSON.stringify(editor.value?.getJSON()) || '';
-  // console.log('note', datum);
+  datum.content = editor.value?.getJSON() || '';
+  console.log('note', datum);
+
   const { data } = await axios.post('/api/note', datum);
   console.log('post', data.id);
 };

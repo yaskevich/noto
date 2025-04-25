@@ -3,7 +3,8 @@
     :title="helpers.renderDate(item?.time)">
     <div class="flex">
       <div class="mt-2">
-        <Tag :severity="item.cat === 1 ? 'warning': 'success' " :value="props.categories.find(x => x.id === item.cat)?.title" class="mr-2"></Tag>
+        <Tag :severity="item.cat === 1 ? 'warning' : 'success'"
+          :value="props.categories.find(x => x.id === item.cat)?.title" class="mr-2"></Tag>
         <span class="p-1" v-if="item.alarm" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.alarm)
         }}</span>
         <i class="pi pi-clock p-1" v-if="item.stamped" style="color:green"></i>
@@ -13,8 +14,9 @@
       <div class="ml-auto">
         <Button icon="pi pi-times-circle" severity="danger" class="p-button-text" @click="remove(item)" />
         <Button :icon="`pi pi-heart${item?.faved ? '-fill' : ''}`" class="p-button-text" @click="addToFavs(item)" />
-        <Button icon="pi pi-pencil" class="p-button-text" @click="goToNote(item.id)" />
-        <Button :disabled="!item.title" :icon="'pi pi-' + (item.full ? 'minus' : 'plus')" class="p-button-text" @click="item.full = !item.full" />
+        <Button v-if="item?.id" icon="pi pi-pencil" class="p-button-text" @click="goToNote(item.id)" />
+        <Button :disabled="!item.title" :icon="'pi pi-' + (item.full ? 'minus' : 'plus')" class="p-button-text"
+          @click="item.full = !item.full" />
       </div>
     </div>
     <div v-if="!item.title || (item.content && item.full)" v-html="helpers.html(item.content)" class="content"></div>
