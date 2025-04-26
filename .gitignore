@@ -1,4 +1,4 @@
-data.db
+*.db
 storage.json
 .ftpignore
 .ftpconfig
@@ -77,3 +77,4 @@ typings/
 
 # next.js build output
 .next
+server/log.txt
