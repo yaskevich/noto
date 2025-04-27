@@ -88,6 +88,11 @@ app.get('/api/cats', async (req, res) => {
   res.json(cats);
 });
 
+app.get('/api/tags', async (req, res) => {
+  const cats = await db.all(`SELECT * FROM tags`);
+  res.json(cats);
+});
+
 app.get('/api/note', async (req, res) => {
   const id = req.query.id || 1;
   const note = await db.all(`SELECT * FROM posts WHERE id = ?`, [id]);
@@ -97,6 +102,7 @@ app.get('/api/note', async (req, res) => {
 app.post('/api/note', async (req, res) => {
   let response = {};
   console.log('req.body', req.body);
+  fs.appendFileSync('log.txt', JSON.stringify(req.body));
   if (req.body.id) {
     const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?), cat = ?, time =?, wholeday=? WHERE id = ?`, [
       req.body.title,
@@ -137,7 +143,7 @@ app.get('/api/person', async (req, res) => {
 
 app.post('/api/person', async (req, res) => {
   let response = {};
-  console.log('req.body', req.body);
+  // console.log('req.body', req.body);
   if (req.body.id) {
     const result = await db.run(`UPDATE persons SET bday = ?, name = ?, content = json(?) WHERE id = ?`, [
       req.body.bday,
@@ -158,7 +164,7 @@ app.post('/api/person', async (req, res) => {
 });
 
 app.get('/api/deadlines', async (req, res) => {
-  const deadlines = await db.all(`SELECT * FROM posts where alarm > datetime('now', '-30 day') AND deleted IS NOT TRUE`);
+  const deadlines = await db.all(`SELECT * FROM posts where alarm > datetime('now', '-90 day') AND deleted IS NOT TRUE`);
   res.json(deadlines);
 });
 
