@@ -1,11 +1,18 @@
 <template>
+    <div class="card flex justify-center">
+        <Select v-model="selectedNumber" :options="range" placeholder="range" class="w-full md:w-56" style="max-width: 7rem;" />
+    </div>
+  <div class="dates">
+    <div v-for="offset in [...Array(selectedNumber).keys()]">{{getDate(offset)}}</div>
+
+  </div>
   <div class="text-center">
     <Unit :categories="cats" v-for="entry in posts" :post="entry" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, onBeforeMount } from 'vue';
+import { reactive, ref, onBeforeMount } from 'vue';
 import axios from 'axios';
 import Unit from './Unit.vue';
 
@@ -30,4 +37,13 @@ onBeforeMount(async () => {
     })
   );
 });
+
+const getDate = (num) => {
+  const date = new Date();
+  date.setDate(date.getDate() - num);
+  return date.toString().split(' ').slice(0, 3).join(' ');
+};
+
+const range = ref([10, 30, 50, 100]);
+const selectedNumber = ref(10);
 </script>
