@@ -1,7 +1,7 @@
 <template>
   <div class="card flex justify-center">
     <Select v-model="selectedNumber" :options="range" placeholder="range" class="w-full md:w-56"
-      style="max-width: 7rem;" />
+      @update:modelValue="change" style="max-width: 7rem;" />
   </div>
   <div class="grid">
     <div class="col" v-for="day in weekdays">
@@ -10,7 +10,7 @@
   </div>
 
   <div>
-    <div class="grid" v-for="week in list">
+    <div class="grid" v-for="week in allDays">
       <div class="col" v-for="day in week">
         <div class="text-center p-3 border-round-sm bg-blue-200"> {{ day[2] }}
         </div>
@@ -23,12 +23,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onBeforeMount } from 'vue';
+import { reactive, ref, onBeforeMount, toRaw } from 'vue';
 import axios from 'axios';
 import Unit from './Unit.vue';
 
 const posts = reactive([] as Array<IPost>);
 const cats = reactive([] as Array<ICat>);
+const order = (new Date()).getDay();
+const range = ref([28, 70, 140, 350]);
+const selectedNumber = ref(toRaw(range.value?.[0]));
+const allDays = ref();
 
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/dated');
@@ -55,9 +59,6 @@ const getDate = (num: number) => {
   return [...date.toString().split(' ').slice(0, 3), num];
 };
 
-const range = ref([28, 50, 100, 300]);
-const selectedNumber = ref(28);
-
 const daysForLocale = () => {
   const { format } = new Intl.DateTimeFormat(Intl.NumberFormat().resolvedOptions().locale, { weekday: "long" });
   return [...Array(7).keys()]
@@ -65,13 +66,20 @@ const daysForLocale = () => {
 };
 
 const weekdays = daysForLocale();
-const order = (new Date()).getDay();
 const daysToAdd = 6 - (order - 2);
 const fwd = [...Array(daysToAdd).keys()].slice(1).map(x => getDate(x));
-const bwd = [...Array(selectedNumber.value).keys()].map(x => getDate(-x));
-const arr = fwd.reverse().concat(bwd);
-const list = Array.from({ length: Math.ceil(arr.length / 7) }, (_, i) =>
-  arr.slice(i * 7, i * 7 + 7).reverse()
-);
 
+const makeList = () => {
+  const bwd = [...Array(selectedNumber.value + order).keys()].map(x => getDate(-x));
+  const arr = fwd.reverse().concat(bwd);
+  allDays.value = Array.from({ length: Math.ceil(arr.length / 7) }, (_, i) =>
+    arr.slice(i * 7, i * 7 + 7).reverse()
+  );
+};
+
+const change = () => {
+  makeList();
+};
+
+makeList();
 </script>
