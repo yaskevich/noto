@@ -12,7 +12,8 @@
   <div>
     <div class="grid" v-for="week in allDays">
       <div class="col" v-for="day in week">
-        <div class="text-center p-3 border-round-sm bg-blue-200"> {{ day[2] }}
+        <div class="text-center p-3 border-round-sm bg-blue-200"> {{ day[2] }} <span :title="`${day[1]}`">{{
+          helpers.months[day[3]] }} </span>
         </div>
       </div>
     </div>
@@ -26,6 +27,7 @@
 import { reactive, ref, onBeforeMount, toRaw } from 'vue';
 import axios from 'axios';
 import Unit from './Unit.vue';
+import helpers from '../helpers';
 
 const posts = reactive([] as Array<IPost>);
 const cats = reactive([] as Array<ICat>);
@@ -56,7 +58,7 @@ onBeforeMount(async () => {
 const getDate = (num: number) => {
   const date = new Date();
   date.setDate(date.getDate() + num);
-  return [...date.toString().split(' ').slice(0, 3), num];
+  return [...date.toString().split(' ').slice(0, 3), date.getMonth(), num];
 };
 
 const daysForLocale = () => {
