@@ -12,12 +12,15 @@
   <div>
     <div class="grid" v-for="week in allDays">
       <div class="col" v-for="day in week">
-        <div class="text-center p-3 border-round-sm bg-blue-200"> {{ day[2] }} <span :title="`${day[1]}`">{{
-          helpers.months[day[3]] }} </span>
+        <div
+          :class="'text-center p-3 border-round-sm ' + (datesDone?.includes(`${day[3]}-${day[2]}`) ? 'bg-blue-400' : 'surface-200')">
+          {{ day[2] }} <span :title="`${day[1]}`">{{
+            helpers.months[day[3]] }} </span>
         </div>
       </div>
     </div>
   </div>
+
   <div class="text-center">
     <Unit :categories="cats" v-for="entry in posts" :post="entry" />
   </div>
@@ -35,6 +38,9 @@ const order = (new Date()).getDay();
 const range = ref([28, 70, 140, 350]);
 const selectedNumber = ref(toRaw(range.value?.[0]));
 const allDays = ref();
+const datesDone = ref();
+
+const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 3), date.getMonth(), num];
 
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/dated');
@@ -44,6 +50,8 @@ onBeforeMount(async () => {
     cats,
     res.data
   );
+
+  datesDone.value = data.filter((x: IPost) => x.time && x).map((x: IPost) => toDateArray(new Date(x.time))).map((x: any) => `${x[3]}-${x[2]}`);
 
   Object.assign(
     posts,
@@ -58,7 +66,7 @@ onBeforeMount(async () => {
 const getDate = (num: number) => {
   const date = new Date();
   date.setDate(date.getDate() + num);
-  return [...date.toString().split(' ').slice(0, 3), date.getMonth(), num];
+  return toDateArray(date, num);
 };
 
 const daysForLocale = () => {
