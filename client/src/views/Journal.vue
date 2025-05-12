@@ -9,14 +9,11 @@
     </div>
   </div>
 
-  <div>
+  <div v-if="datesDone">
     <div class="grid" v-for="week in allDays">
       <div class="col" v-for="day in week">
-        <div
-          :class="'text-center p-3 border-round-sm ' + (datesDone?.includes(`${day[3]}-${day[2]}`) ? 'bg-blue-400' : 'surface-200')">
-          {{ day[2] }} <span :title="`${day[1]}`">{{
-            helpers.months[day[3]] }} </span>
-        </div>
+        <Button severity="secondary" :class="'text-center p-3 border-round-sm ' + setRenderClass(day)"
+          :label="day[2] + helpers.months[day[3]]" :title="`${day[1]}`" @click="showEditor(day)" />
       </div>
     </div>
   </div>
@@ -38,9 +35,26 @@ const order = (new Date()).getDay();
 const range = ref([28, 70, 140, 350]);
 const selectedNumber = ref(toRaw(range.value?.[0]));
 const allDays = ref();
-const datesDone = ref();
+const datesDone = ref({} as keyable);
 
 const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 3), date.getMonth(), num];
+
+const setRenderClass = (val: Array<number>) => {
+  if (!val[4]) {
+    return 'bg-blue-400';
+  }
+  if (val[4] > 0) {
+    return 'surface-50';
+  }
+  if (Object.keys(datesDone.value)?.includes(`${val[3]}-${val[2]}`)) {
+    return 'bg-green-300';
+  }
+  return 'bg-red-400';
+};
+
+const showEditor = (val: Array<number>) => {
+  console.log('click', val);
+};
 
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/dated');
@@ -51,7 +65,12 @@ onBeforeMount(async () => {
     res.data
   );
 
-  datesDone.value = data.filter((x: IPost) => x.time && x).map((x: IPost) => toDateArray(new Date(x.time))).map((x: any) => `${x[3]}-${x[2]}`);
+  const toKey = (val: IPost) => {
+    const arr = toDateArray(new Date(val.time));
+    datesDone.value[`${arr[3]}-${arr[2]}`] = val;
+  };
+
+  data.filter((x: IPost) => x.time && x).map((x: IPost) => toKey(x));
 
   Object.assign(
     posts,
