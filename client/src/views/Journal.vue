@@ -1,25 +1,27 @@
 <template>
-  <div class="card flex justify-center">
-    <Select v-model="selectedNumber" :options="range" placeholder="range" class="w-full md:w-56"
-      @update:modelValue="change" style="max-width: 7rem;" />
-  </div>
-  <div class="grid">
-    <div class="col" v-for="day in weekdays">
-      <div class="text-center p-3 border-round-sm bg-primary font-bold">{{ day }}</div>
+  <div v-show="isLoaded">
+    <div class="card flex justify-center">
+      <Select v-model="selectedNumber" :options="range" placeholder="range" class="w-full md:w-56"
+        @update:modelValue="change" style="max-width: 7rem;" />
     </div>
-  </div>
-
-  <div v-if="datesDone">
-    <div class="grid" v-for="week in allDays">
-      <div class="col" v-for="day in week">
-        <Button severity="secondary" :class="'text-center p-3 border-round-sm ' + setRenderClass(day)"
-          :label="day[2] + helpers.months[day[3]]" :title="`${day[1]}`" @click="showEditor(day)" />
+    <div class="grid">
+      <div class="col" v-for="day in weekdays">
+        <div class="text-center p-3 border-round-sm bg-primary font-bold">{{ day }}</div>
       </div>
     </div>
-  </div>
 
-  <div class="text-center">
-    <Unit :categories="cats" v-for="entry in posts" :post="entry" />
+    <div v-if="datesDone">
+      <div class="grid" v-for="week in allDays">
+        <div class="col" v-for="day in week">
+          <Button severity="secondary" :class="'text-center p-3 border-round-sm ' + setRenderClass(day)"
+            :label="day[2] + helpers.months[day[4]]" :title="`${day[1]}`" @click="showEditor(day)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <Unit :categories="cats" v-for="entry in posts" :post="entry" />
+    </div>
   </div>
 </template>
 
@@ -28,6 +30,7 @@ import { reactive, ref, onBeforeMount, toRaw } from 'vue';
 import axios from 'axios';
 import Unit from './Unit.vue';
 import helpers from '../helpers';
+import router from '../router';
 
 const posts = reactive([] as Array<IPost>);
 const cats = reactive([] as Array<ICat>);
@@ -36,24 +39,31 @@ const range = ref([28, 70, 140, 350]);
 const selectedNumber = ref(toRaw(range.value?.[0]));
 const allDays = ref();
 const datesDone = ref({} as keyable);
+const isLoaded = ref(false);
 
-const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 3), date.getMonth(), num];
+const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num];
+
+const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
 
 const setRenderClass = (val: Array<number>) => {
-  if (!val[4]) {
+  if (!val[5]) {
     return 'bg-blue-400';
   }
-  if (val[4] > 0) {
+  if (val[5] > 0) {
     return 'surface-50';
   }
-  if (Object.keys(datesDone.value)?.includes(`${val[3]}-${val[2]}`)) {
+  if (Object.keys(datesDone.value)?.includes(valToKey(val))) {
     return 'bg-green-300';
   }
   return 'bg-red-400';
 };
 
 const showEditor = (val: Array<number>) => {
-  console.log('click', val);
+  const datum = datesDone.value[valToKey(val)];
+  if (datum?.id) {
+    router.push(`/note/${datum.id}`);
+  }
+  console.log(datum);
 };
 
 onBeforeMount(async () => {
@@ -66,8 +76,11 @@ onBeforeMount(async () => {
   );
 
   const toKey = (val: IPost) => {
-    const arr = toDateArray(new Date(val.time));
-    datesDone.value[`${arr[3]}-${arr[2]}`] = val;
+    const key = val?.alarm?.toString()?.slice(0, 10);
+    // const arr = toDateArray(new Date(val.time));
+    if (key) {
+      datesDone.value[key] = val;
+    }
   };
 
   data.filter((x: IPost) => x.time && x).map((x: IPost) => toKey(x));
@@ -80,6 +93,7 @@ onBeforeMount(async () => {
       return btime.localeCompare(atime);
     })
   );
+  isLoaded.value = true;
 });
 
 const getDate = (num: number) => {
