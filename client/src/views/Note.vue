@@ -4,10 +4,10 @@
       autocomplete="off" />
     <Button label="Save" @click="handleClick" />
     <div class="mt-2 mb-2">
-      <Dropdown v-model="selectedCat" :options="cats" optionLabel="title" optionValue="id" placeholder="Select a City"
+      <Select v-model="selectedCat" :options="cats" optionLabel="title" optionValue="id" placeholder="Select a category"
         class="w-full md:w-14rem" />
       <!-- <label for="time24">Date time</label> -->
-      <Calendar id="time24" v-model="note.alarm" :showTime="true" :showIcon="true" :showButtonBar="true"
+      <DatePicker id="time24" v-model="note.alarm" :showTime="true" :showIcon="true" :showButtonBar="true"
         :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
     </div>
     <editor-content :editor="editor" class="editor" ref="contentRef" />
