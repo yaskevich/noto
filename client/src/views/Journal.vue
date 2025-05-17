@@ -14,9 +14,11 @@
     <div v-if="datesDone">
       <div class="grid" v-for="week in allDays">
         <div class="col" v-for="day in week">
-          <Button severity="secondary" :class="'text-center p-3 border-round-sm ' + setRenderClass(day)"
-            :label="`${day[2]} ${checked ? helpers.months[day[4]] : day[1]}`" :title="`${day[1]}`"
-            @click="showEditor(day)" />
+          <div :class="[0, 6].includes(day[6]) ? 'weekend' : ''">
+            <Button severity="secondary" :class="'text-center p-3 border-round-sm ' + setRenderClass(day)"
+              :label="`${day[2]} ${checked ? helpers.months[day[4]] : day[1]}`" :title="`${day[1]}`"
+              @click="showEditor(day)" />
+          </div>
         </div>
       </div>
     </div>
@@ -43,7 +45,7 @@ const allDays = ref();
 const datesDone = ref({} as keyable);
 const isLoaded = ref(false);
 const checked = ref(false);
-const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num];
+const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num, date.getDay()];
 
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
 
@@ -64,8 +66,12 @@ const showEditor = (val: Array<number>) => {
   const datum = datesDone.value[valToKey(val)];
   if (datum?.id) {
     router.push(`/note/${datum.id}`);
+  } else {
+    console.log('new entry');
+    router.push(`/note/`);
+
   }
-  console.log(datum);
+  // console.log(datum);
 };
 
 onBeforeMount(async () => {
@@ -128,3 +134,8 @@ const change = () => {
 
 makeList();
 </script>
+<style>
+.weekend {
+  border: 3px dashed pink;
+}
+</style>
