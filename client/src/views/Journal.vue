@@ -27,6 +27,27 @@
       <Unit :categories="cats" v-for="entry in posts" :post="entry" />
     </div>
   </div>
+
+  <Dialog v-model:visible="visible" modal header="Save Note" :style="{ width: '25rem' }">
+    <div>
+      <div v-if="editor">
+        <div class="mb-2">
+          <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">setLink</button>
+          <button @click="editor?.chain().focus().unsetLink().run()" :disabled="!editor.isActive('link')">
+            unsetLink
+          </button>
+        </div>
+        <editor-content :editor="editor" class="editor" />
+      </div>
+      <div>
+        <MultiSelect v-model="selTags" :options="tags" optionLabel="title" filter placeholder="Select tags"
+          :maxSelectedLabels="3" class="w-full md:w-80" />
+        <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
+        <Button type="button" label="Save" @click="saveNote"></Button>
+      </div>
+    </div>
+  </Dialog>
+
 </template>
 
 <script setup lang="ts">
@@ -35,6 +56,7 @@ import axios from 'axios';
 import Unit from './Unit.vue';
 import helpers from '../helpers';
 import router from '../router';
+import { EditorContent } from '@tiptap/vue-3';
 
 const posts = reactive([] as Array<IPost>);
 const cats = reactive([] as Array<ICat>);
@@ -45,8 +67,13 @@ const allDays = ref();
 const datesDone = ref({} as keyable);
 const isLoaded = ref(false);
 const checked = ref(false);
+const visible = ref(false);
+const thisPost = ref<IPost>();
+const editor = helpers.setupEditor(thisPost?.value?.content || '');
+const selTags = ref();
+const tags = reactive([] as Array<ICat>);
+const curDate = ref();
 const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num, date.getDay()];
-
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
 
 const setRenderClass = (val: Array<number>) => {
@@ -62,17 +89,39 @@ const setRenderClass = (val: Array<number>) => {
   return 'bg-red-400';
 };
 
+const saveNote = async () => {
+  console.log("save");
+};
+
+const onClickDay = (key: string) => {
+  console.log("add event", key);
+  visible.value = true;
+  editor.value?.commands.setContent('');
+};
+
+
 const showEditor = (val: Array<number>) => {
-  const datum = datesDone.value[valToKey(val)];
+  const key = valToKey(val);
+  const datum = datesDone.value?.[key];
   if (datum?.id) {
     router.push(`/note/${datum.id}`);
   } else {
     console.log('new entry');
-    router.push(`/note/`);
+    // router.push(`/note/`);
+    onClickDay(key);
 
   }
   // console.log(datum);
 };
+
+const toKey = (val: IPost) => {
+  const key = val?.alarm?.toString()?.slice(0, 10);
+  // const arr = toDateArray(new Date(val.time));
+  if (key) {
+    datesDone.value[key] = val;
+  }
+};
+
 
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/dated');
@@ -82,17 +131,7 @@ onBeforeMount(async () => {
     cats,
     res.data
   );
-
-  const toKey = (val: IPost) => {
-    const key = val?.alarm?.toString()?.slice(0, 10);
-    // const arr = toDateArray(new Date(val.time));
-    if (key) {
-      datesDone.value[key] = val;
-    }
-  };
-
-  data.filter((x: IPost) => x.time && x).map((x: IPost) => toKey(x));
-
+  data.filter((x: IPost) => x.wholeday && x.time && x).map((x: IPost) => toKey(x));
   Object.assign(
     posts,
     data?.sort((a: any, b: any) => {
@@ -108,6 +147,23 @@ const getDate = (num: number) => {
   const date = new Date();
   date.setDate(date.getDate() + num);
   return toDateArray(date, num);
+};
+
+
+const setLink = () => {
+  const previousUrl = editor.value?.getAttributes('link').href;
+  const url = window.prompt('URL', previousUrl);
+  // cancelled
+  if (url === null) {
+    return;
+  }
+  // empty
+  if (url === '') {
+    editor.value?.chain().focus().extendMarkRange('link').unsetLink().run();
+    return;
+  }
+  // update link
+  editor.value?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
 };
 
 const daysForLocale = () => {
