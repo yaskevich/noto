@@ -23,7 +23,7 @@
           <Button label="Save" @click="handleClick(0)" />
           <div class="mt-2">
             <!-- <label for="time24">Date time</label> -->
-            <Calendar ref="calRef" id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true"
+            <DatePicker ref="calRef" id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true"
               :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
           </div>
           <div class="p-2">
@@ -120,6 +120,7 @@ const handleClick = async (id: number) => {
       faved: false,
       deleted: false,
       cat: id || cat.value || 1,
+      wholeday: false,
     } as IPost;
     if (userdate.value) {
       if (isStamped.value) {
