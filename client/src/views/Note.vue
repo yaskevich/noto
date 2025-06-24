@@ -10,6 +10,10 @@
       <DatePicker id="time24" v-model="note.alarm" :showTime="true" :showIcon="true" :showButtonBar="true"
         :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
     </div>
+    <div class="card flex justify-center">
+      <MultiSelect v-model="selectedTags" :options="tags" optionLabel="title" optionsValue="id" filter
+        placeholder="Select Tags" display="chip" :maxSelectedLabels="3" class="w-full md:w-80" />
+    </div>
     <editor-content :editor="editor" class="editor" ref="contentRef" />
   </div>
 </template>
@@ -21,6 +25,8 @@ import { useRoute } from 'vue-router';
 import { EditorContent } from '@tiptap/vue-3';
 import helpers from '../helpers';
 
+const selectedTags = ref([]);
+const tags = ref();
 const contentRef = ref<HTMLDivElement>();
 const editor = helpers.setupEditor('');
 const note = reactive({}) as IPost;
@@ -29,13 +35,22 @@ const vuerouter = useRoute();
 const id = vuerouter.params.id;
 const selectedCat = ref(1);
 
+const getTags = (str: string) => str ? JSON.parse(str) : [];
+
 onBeforeMount(async () => {
+  const tagsData = await axios.get('/api/tags');
+  tags.value = tagsData.data;
+
   if (id) {
     const config = { params: { id: id } };
     const { data } = await axios.get('/api/note', config);
     if (data?.alarm) {
       data.alarm = new Date(data.alarm);
     }
+
+    const tagIds = getTags(data.tags);
+    selectedTags.value = tagsData.data.filter((x: any) => tagIds.find((y: any) => y === x.id));
+
     Object.assign(note, data);
     const ttInstance = (contentRef.value as any).editor;
     // console.log(data.content);
@@ -56,6 +71,7 @@ const handleClick = async () => {
   // }
   datum.cat = selectedCat.value;
   datum.content = editor.value?.getJSON() || '';
+  datum.tags = selectedTags.value.map((x: any) => x.id);
   console.log('note', datum);
 
   const { data } = await axios.post('/api/note', datum);

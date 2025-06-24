@@ -39,5 +39,6 @@ declare global {
     cat: number;
     full?: boolean;
     wholeday?: boolean;
+    tags: any;
   }
 }
