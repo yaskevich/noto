@@ -58,10 +58,37 @@ const setupEditor = (content: string) =>
     ],
   });
 
+
+const get = async (route: string, params?: keyable) => {
+  const response = await fetch(`/api/${route}?` + new URLSearchParams(params).toString());
+  if (response.status === 200) {
+    return await response.json();
+  } else {
+    console.log("fetching error");
+  }
+};
+
+const save = async (route: string, params: keyable) => {
+  const response = await fetch(`/api/${route}`, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json', // this needs to be defined
+    },
+    body: JSON.stringify(params),
+  });
+  if (response.status === 200) {
+    const data = await response.json();
+    return data;
+  } else {
+    console.log('fetching error');
+  }
+};
 export default {
   html,
   renderDate,
   formatDate,
   setupEditor,
   months: ms,
+  get,
+  save,
 };
