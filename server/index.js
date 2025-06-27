@@ -94,6 +94,23 @@ app.get('/api/tags', async (req, res) => {
   res.json(cats);
 });
 
+app.post('/api/tags', async (req, res) => {
+  if (req.body.title) {
+    const result = await db.run(
+      `INSERT INTO tags (title) VALUES(?)`,
+      [req.body.title]
+    );
+    res.json(result);
+  } else {
+    res.json({});
+  }
+});
+
+app.delete('/api/tags', async (req, res) => {
+  const result = await db.run(`DELETE from tags WHERE id = ?`, [req.body.id])
+  res.json(result);
+});
+
 app.get('/api/note', async (req, res) => {
   const id = req.query.id || 1;
   const note = await db.all(`SELECT * FROM posts WHERE id = ?`, [id]);
