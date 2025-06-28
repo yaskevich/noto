@@ -83,6 +83,28 @@ const save = async (route: string, params: keyable) => {
     console.log('fetching error');
   }
 };
+
+
+const del = async (route: string, params: keyable) => {
+  const response = await fetch(`/api/${route}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8' // Indicates the content 
+    },
+    body: JSON.stringify(params),
+
+  });
+  if (response.status === 200) {
+    const data = await response.json();
+    if (data.changes === 1) {
+      return true;
+    }
+  }
+
+  console.log('fetching error');
+  return false;
+};
+
 export default {
   html,
   renderDate,
@@ -91,4 +113,5 @@ export default {
   months: ms,
   get,
   save,
+  del,
 };
