@@ -107,8 +107,16 @@ app.post('/api/tags', async (req, res) => {
 });
 
 app.delete('/api/tags', async (req, res) => {
-  const result = await db.run(`DELETE from tags WHERE id = ?`, [req.body.id])
-  res.json(result);
+  const id = Number(req.body.id);
+  const posts = await db.all('SELECT posts.id FROM posts, JSON_EACH(posts.tags) WHERE json_each.value = ?', [id]);
+  console.log(posts.length);
+  if (!posts?.length) {
+    const result = await db.run(`DELETE from tags WHERE id = ?`, [req.body.id])
+    res.json(result);
+  }
+  else {
+    res.json({});
+  }
 });
 
 app.get('/api/note', async (req, res) => {
