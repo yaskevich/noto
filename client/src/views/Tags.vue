@@ -3,7 +3,8 @@
         <InputText type="text" v-model="title" /><Button label="Save" @click="addTag" />
     </div>
     <div v-for="(item, index) in tags" style="font-weight: bold; margin-bottom:1rem; color:red">
-        {{ item.title }} <Button label="Delete" @click="deleteTag(item, index)" />
+        <Button label="Delete" severity="danger" @click="deleteTag(item, index)" />
+        <InputText type="text" v-model="item.title" /> <Button label="Rename" @click="renameTag(item, index)" />
     </div>
 </template>
 
@@ -13,6 +14,14 @@ import h from '../helpers';
 
 const title = ref('');
 const tags = ref([] as Array<ICat>);
+
+const renameTag = async (entry: ICat, num: number) => {
+    const result = await h.save('tags', entry);
+    if (result.changes) {
+        console.log(result, entry, num);
+    }
+};
+
 const addTag = async () => {
     const result = await h.save('tags', { title: title.value });
     // console.log(title.value, result);

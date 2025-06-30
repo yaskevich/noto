@@ -98,11 +98,13 @@ const del = async (route: string, params: keyable) => {
     const data = await response.json();
     if (data.changes === 1) {
       return true;
+    } else {
+      console.log("denied by server");
     }
+  } else {
+    console.log('fetching error');
+    return false;
   }
-
-  console.log('fetching error');
-  return false;
 };
 
 export default {

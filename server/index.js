@@ -96,11 +96,19 @@ app.get('/api/tags', async (req, res) => {
 
 app.post('/api/tags', async (req, res) => {
   if (req.body.title) {
-    const result = await db.run(
-      `INSERT INTO tags (title) VALUES(?)`,
-      [req.body.title]
-    );
-    res.json(result);
+    if (req.body.id) {
+      const result = await db.run(`UPDATE tags SET title = ? WHERE id = ?`, [
+        req.body.title,
+        Number(req.body.id),
+      ]);
+      res.json(result);
+    } else {
+      const result = await db.run(
+        `INSERT INTO tags (title) VALUES(?)`,
+        [req.body.title]
+      );
+      res.json(result);
+    }
   } else {
     res.json({});
   }
