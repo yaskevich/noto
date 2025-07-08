@@ -8,8 +8,9 @@
             <Button :disabled="true" label="ALL" @click="handleClick(0)" class="p-button-help" size="small" />
           </label>
           <template v-for="(item, key) in cats" :key="key">
-            <RadioButton v-model="cat" inputId="category" name="cat" :value="item.id" @change="changeCategory(item.id)" />
-            <label for="category" class="ml-2">
+            <RadioButton v-model="cat" :inputId="`cat${item.id}`" :name="`cat${item.id}`" :value="item.id"
+              @change="changeCategory(item.id)" />
+            <label :for="`cat${item.id}`" class="ml-2">
               <Button :label="item.title" @click="handleClick(item.id)" class="p-button-help" size="small" />
             </label>
           </template>
@@ -23,8 +24,9 @@
           <Button label="Save" @click="handleClick(0)" />
           <div class="mt-2">
             <!-- <label for="time24">Date time</label> -->
-            <DatePicker ref="calRef" id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true"
-              :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
+            <DatePicker ref="calRef" id="time24" v-model="userdate" :showTime="true" :showIcon="true"
+              :showButtonBar="true" :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false"
+              dateFormat="yy.mm.dd" />
           </div>
           <div class="p-2">
             <Checkbox v-model="isStamped" inputId="stamp" name="stamp" :binary="true" @click="enableStamped" />
@@ -39,7 +41,7 @@
                 unsetLink
               </button>
             </div>
-            <editor-content :editor="editor" class="editor" />
+            <editor-content :editor="editor" class="editor" id="editor" />
           </div>
         </div>
       </div>
@@ -48,15 +50,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount, toRaw } from 'vue';
+import { ref, reactive, onBeforeMount } from 'vue';
 import axios from 'axios';
 import Unit from './Unit.vue';
 import helpers from '../helpers';
-import { useRoute } from 'vue-router';
 import { EditorContent } from '@tiptap/vue-3';
 
-const vuerouter = useRoute();
-const selection = String(vuerouter.params.id);
 const userinput = ref('');
 const content = ref('');
 const userdate = ref();
@@ -66,7 +65,6 @@ const cats = reactive([] as Array<ICat>);
 const editor = helpers.setupEditor(content.value);
 const cat = ref(0);
 const calRef = ref(null as any);
-
 
 const getPosts = async () => {
   const { data } = await axios.get('/api/data', { params: { cat: cat.value } });
