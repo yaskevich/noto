@@ -77,28 +77,53 @@ const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slic
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
 
 const setRenderClass = (val: Array<number>) => {
+  if (Object.keys(datesDone.value)?.includes(valToKey(val))) {
+    if (!val[5]) {
+      return 'bg-green-500';
+    }
+    return 'bg-green-300';
+  }
   if (!val[5]) {
     return 'bg-blue-400';
   }
   if (val[5] > 0) {
     return 'surface-50';
   }
-  if (Object.keys(datesDone.value)?.includes(valToKey(val))) {
-    return 'bg-green-300';
-  }
   return 'bg-red-400';
 };
 
 const saveNote = async () => {
-  console.log("save");
+  // console.log("save");
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  const title = curDate.value.toLocaleDateString("ru-BY", options);
+  const content = editor.value?.getJSON();
+  const newPost = {
+    title,
+    content,
+    stamped: true,
+    time: String(Date.now()),
+    alarm: helpers.getLastMinute(curDate.value),
+    wholeday: true,
+    faved: false,
+    deleted: false,
+    cat: 1,
+  } as IPost;
+  const { data } = await axios.post('/api/note', newPost);
+  console.log(data);
+  posts.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content, id: data.id } as any);
 };
 
 const onClickDay = (key: string) => {
   console.log("add event", key);
+  curDate.value = new Date(key);
   visible.value = true;
   editor.value?.commands.setContent('');
 };
-
 
 const showEditor = (val: Array<number>) => {
   const key = valToKey(val);
@@ -109,7 +134,6 @@ const showEditor = (val: Array<number>) => {
     console.log('new entry');
     // router.push(`/note/`);
     onClickDay(key);
-
   }
   // console.log(datum);
 };
@@ -121,7 +145,6 @@ const toKey = (val: IPost) => {
     datesDone.value[key] = val;
   }
 };
-
 
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/dated');
@@ -148,7 +171,6 @@ const getDate = (num: number) => {
   date.setDate(date.getDate() + num);
   return toDateArray(date, num);
 };
-
 
 const setLink = () => {
   const previousUrl = editor.value?.getAttributes('link').href;
