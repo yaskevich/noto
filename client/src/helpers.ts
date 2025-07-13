@@ -107,6 +107,14 @@ const del = async (route: string, params: keyable) => {
   }
 };
 
+const getLastMinute = (day: Date) => {
+  const dd = new Date(day.toISOString());
+  dd.setHours(dd.getHours() + 23);
+  dd.setMinutes(dd.getMinutes() + 59);
+  dd.setSeconds(dd.getSeconds() + 59);
+  return dd;
+};
+
 export default {
   html,
   renderDate,
@@ -116,4 +124,5 @@ export default {
   get,
   save,
   del,
+  getLastMinute,
 };
