@@ -113,9 +113,16 @@ const saveNote = async () => {
     deleted: false,
     cat: 1,
   } as IPost;
-  const { data } = await axios.post('/api/note', newPost);
-  console.log(data);
-  posts.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content, id: data.id } as any);
+
+  const key = helpers.formatDate(curDate.value);
+  if (key) {
+    const { data } = await axios.post('/api/note', newPost);
+    // console.log(data);
+    const fullPost = { ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content, id: data.id } as any;
+    posts.push(fullPost);
+    datesDone.value[key] = fullPost;
+    visible.value = false;
+  }
 };
 
 const onClickDay = (key: string) => {
