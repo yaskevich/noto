@@ -77,8 +77,10 @@ app.use(express.static('public'));
 
 app.get('/api/data', async (req, res) => {
   const cat = Number(req.query.cat);
+  const search = req.query.search;
   const ext = cat ? 'AND cat = ' + cat : '';
-  const sql = `SELECT * FROM posts WHERE deleted IS NOT TRUE ${ext} ORDER BY id DESC`;
+  const ext2 = search ? 'AND content LIKE "%' + search + '%"' : '';
+  const sql = `SELECT * FROM posts WHERE deleted IS NOT TRUE ${ext} ${ext2} ORDER BY id DESC`;
   const posts = await db.all(sql);
   const cats = await db.all(`SELECT * FROM cats`);
   res.json({ posts, cats });
