@@ -3,15 +3,14 @@
     <!-- <h1>My Calendar</h1> -->
     <Toast />
     <ToggleSwitch v-model="checked" />
-    <calendar-view :show-date="showDate" class="mb-2 theme-default holiday-us-traditional holiday-us-official"
-      :startingDayOfWeek="1" @click-date="onClickDay" :items="posts">
+    <calendar-view  v-if="posts.length" :show-date="showDate" class="mb-2 theme-default holiday-us-traditional holiday-us-official"
+      :startingDayOfWeek="1" @click-date="onClickDay" :items="posts as any">
       <template #header="{ headerProps }">
         <calendar-view-header :header-props="headerProps" @input="setShowDate" />
       </template>
-      <template #item="{ value, week, top }">
+      <template #item="{ value }">
         <!-- span1 -->
-        <div class="dot" :style="`color: ${value.originalItem
-          .wholeday ? 'green' : 'red'}`" :title="value.title"
+        <div class="dot" :style="`color: ${(value.originalItem as any)?.wholeday ? 'green' : 'red'}`" :title="value.title"
           :class="value.classes.filter((x: string) => x !== 'span1').join(' ') + ' cv-item ml-' + (value.itemRow ? value.itemRow + 1 : 0)"
           @click="onClickEvent(value)">●</div>
       </template>
@@ -20,7 +19,6 @@
   </div>
 
   <Dialog v-model:visible="visible" modal header="Save Note" :style="{ width: '25rem' }">
-
     <div>
       <div v-if="editor">
         <div class="mb-2">
@@ -34,7 +32,6 @@
       <div>
         <MultiSelect v-model="selTags" :options="tags" optionLabel="title" filter placeholder="Select tags"
           :maxSelectedLabels="3" class="w-full md:w-80" />
-
         <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
         <Button type="button" label="Save" @click="saveNote"></Button>
       </div>
@@ -50,6 +47,7 @@ import axios from 'axios';
 import helpers from '../helpers';
 import Unit from './Unit.vue';
 import { CalendarView, CalendarViewHeader } from 'vue-simple-calendar';
+// import type { ICalendarItem } from 'vue-simple-calendar';
 import { EditorContent } from '@tiptap/vue-3';
 import "../../node_modules/vue-simple-calendar/dist/vue-simple-calendar.css";
 // The next two lines are optional themes
@@ -82,16 +80,16 @@ const onClickEvent = (val: any) => {
   toast.add({ severity: 'info', summary: helpers.renderDate(val.originalItem.alarm), detail: val.title, life: 3000 });
 };
 
-const onClickDay = (date: any, calendarItems: any, windowEvent: Event) => {
-  // console.log(date, calendarItems);
+const onClickDay = (date: any, calendarItems: any) => {
+  console.log(date, calendarItems);
   if (checked.value) {
     console.log("add event", date);
     visible.value = true;
     curDate.value = date;
     const dt = getLastMinute();
     // thisPost.value = {} as IPost;
-    
-    const exPost = posts.find(x => String(x.alarm) === String(dt));
+
+    const exPost = posts.find((x:IPost) => String(x.alarm) === String(dt));
     if (exPost?.id) {
       thisPost.value = exPost;
     }
@@ -126,8 +124,7 @@ onBeforeMount(async () => {
   );
 });
 
-
-const saveNote = async (date: any) => {
+const saveNote = async () => {
   visible.value = false;
   const realContent = editor.value?.getText();
   console.log(realContent);
@@ -169,7 +166,7 @@ const saveNote = async (date: any) => {
       } as IPost;
       const { data } = await axios.post('/api/note', newPost);
       console.log(data);
-      posts.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content, id: data.id });
+      posts.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content, id: data.id } as any);
     }
     // if (userdate.value) {
     //   if (isStamped.value) {
