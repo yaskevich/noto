@@ -1,11 +1,10 @@
-import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
 import { generateHTML } from '@tiptap/core';
 import { useEditor, } from '@tiptap/vue-3';
-import Placeholder from '@tiptap/extension-placeholder';
+import StarterKit from '@tiptap/starter-kit';
+import { Placeholder, CharacterCount } from '@tiptap/extensions';
 
 const html = (x: any) =>
-  x && x !== '""' ? generateHTML(typeof x === 'string' ? JSON.parse(x) : x, [StarterKit, Link]) : '';
+  x && x !== '""' ? generateHTML(typeof x === 'string' ? JSON.parse(x) : x, [StarterKit, Placeholder]) : '';
 
 const ms = [
   '⛄', // january
@@ -49,7 +48,7 @@ const setupEditor = (content: string) =>
     content: content,
     extensions: [
       StarterKit,
-      Link,
+      CharacterCount,
       Placeholder.configure({
         placeholder: 'Write something',
         showOnlyWhenEditable: false,
