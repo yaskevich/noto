@@ -28,9 +28,9 @@
     </div>
   </div>
 
-  <Dialog v-model:visible="visible" modal header="Save Note" :style="{ width: '25rem' }">
+  <Dialog v-model:visible="visible" modal header="Save Note" class="mdl">
     <div>
-      <div v-if="editor">
+      <div v-if="editor" class="mb-2">
         <div class="mb-2">
           <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">setLink</button>
           <button @click="editor?.chain().focus().unsetLink().run()" :disabled="!editor.isActive('link')">
@@ -39,10 +39,12 @@
         </div>
         <editor-content :editor="editor" class="editor" />
       </div>
-      <div>
+      <div class="mb-2">
         <MultiSelect v-model="selTags" :options="tags" optionLabel="title" filter placeholder="Select tags"
           :maxSelectedLabels="3" class="w-full md:w-80" />
-        <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
+      </div>
+      <div class="inline-flex flex-col justify-content-between items-start gap-2 w-full pt-4 pb-2">
+        <Button type="button" label="Cancel" severity="info" @click="visible = false"></Button>
         <Button type="button" label="Save" @click="saveNote"></Button>
       </div>
     </div>
@@ -71,7 +73,7 @@ const visible = ref(false);
 const thisPost = ref<IPost>();
 const editor = helpers.setupEditor(thisPost?.value?.content || '');
 const selTags = ref();
-const tags = reactive([] as Array<ICat>);
+const tags = ref([] as Array<ICat>);
 const curDate = ref();
 const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num, date.getDay()];
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
@@ -222,5 +224,20 @@ makeList();
 <style>
 .weekend {
   border: 3px dashed pink;
+}
+
+.mdl {
+  width: 25rem;
+  font-family: Avenir, Helvetica, Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+.p-multiselect-option {
+  font-family: Avenir, Helvetica, Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
 }
 </style>
