@@ -154,7 +154,7 @@ app.post('/api/note', async (req, res) => {
   } else {
     const result = await db.run(
       `INSERT INTO posts (title, alarm, content, stamped, cat, time, wholeday, tags) VALUES ( ?, ?, json(?), ?, ?, ?, ?, json(?))`,
-      [req.body.title, req.body.alarm || null, JSON.stringify(req.body.content), req.body.stamped, req.body.cat, req.body.time, req.body.wholeday, req.body.tags]
+      [req.body.title, req.body.alarm || null, JSON.stringify(req.body.content), req.body.stamped, req.body.cat, req.body.time, req.body.wholeday, JSON.stringify(req.body.tags)]
     );
     response = { id: result.lastID };
   }

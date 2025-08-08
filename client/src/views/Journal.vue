@@ -107,6 +107,7 @@ const saveNote = async () => {
   const newPost = {
     title,
     content,
+    tags: selTags.value.map((x: any) => x.id),
     stamped: true,
     time: String(Date.now()),
     alarm: helpers.getLastMinute(curDate.value),
@@ -158,6 +159,8 @@ const toKey = (val: IPost) => {
 onBeforeMount(async () => {
   const { data } = await axios.get('/api/dated');
   // console.log(data);
+  const tagsData = await axios.get('/api/tags');
+  tags.value = tagsData.data;
   const res = await axios.get('/api/cats');
   Object.assign(
     cats,
