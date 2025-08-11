@@ -3,16 +3,19 @@
     <!-- <h1>My Calendar</h1> -->
     <Toast />
     <ToggleSwitch v-model="checked" />
-    <calendar-view  v-if="posts.length" :show-date="showDate" class="mb-2 theme-default holiday-us-traditional holiday-us-official"
-      :startingDayOfWeek="1" @click-date="onClickDay" :items="posts as any">
+    <calendar-view v-if="posts.length" :show-date="showDate"
+      class="mb-2 theme-default holiday-us-traditional holiday-us-official" :startingDayOfWeek="1"
+      @click-date="onClickDay" :items="(posts as any)">
       <template #header="{ headerProps }">
         <calendar-view-header :header-props="headerProps" @input="setShowDate" />
       </template>
       <template #item="{ value }">
         <!-- span1 -->
-        <div class="dot" :style="`color: ${(value.originalItem as any)?.wholeday ? 'green' : 'red'}`" :title="value.title"
-          :class="value.classes.filter((x: string) => x !== 'span1').join(' ') + ' cv-item ml-' + (value.itemRow ? value.itemRow + 1 : 0)"
-          @click="onClickEvent(value)">●</div>
+        <div :title="value.title"
+          :class="value.classes.filter((x: string) => x !== 'span1').join(' ') + ' cv-item dot ml-' + (value.itemRow ? value.itemRow + 1 : 0)"
+          @click="onClickEvent(value)">
+          <component :is="renderMarker(value)" />
+        </div>
       </template>
     </calendar-view>
     <Unit v-for="entry in posts" :categories="cats" :post="entry" />
@@ -40,14 +43,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount } from 'vue';
+import { h, ref, reactive, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import ToggleSwitch from 'primevue/toggleswitch';
 import axios from 'axios';
 import helpers from '../helpers';
 import Unit from './Unit.vue';
 import { CalendarView, CalendarViewHeader } from 'vue-simple-calendar';
-// import type { ICalendarItem } from 'vue-simple-calendar';
+// import type { INormalizedCalendarItem, ICalendarItem } from 'vue-simple-calendar';
 import { EditorContent } from '@tiptap/vue-3';
 import "../../node_modules/vue-simple-calendar/dist/vue-simple-calendar.css";
 // The next two lines are optional themes
@@ -74,6 +77,16 @@ const getLastMinute = () => {
   return dd;
 };
 
+const renderMarker = (val: any) => {
+  if (val.originalItem?.wholeday) {
+    return h('span', { style: { color: "green" } }, "●");
+  }
+  if (val.originalItem?.bday) {
+    return h('span', "🎂");
+  }
+  return h('span', { style: { color: "red" } }, "●");
+};
+
 const onClickEvent = (val: any) => {
   // console.log(val);
   console.log(val.title, val.originalItem?.content, val.startDate);
@@ -88,8 +101,7 @@ const onClickDay = (date: any, calendarItems: any) => {
     curDate.value = date;
     const dt = getLastMinute();
     // thisPost.value = {} as IPost;
-
-    const exPost = posts.find((x:IPost) => String(x.alarm) === String(dt));
+    const exPost = posts.find((x: IPost) => String(x.alarm) === String(dt));
     if (exPost?.id) {
       thisPost.value = exPost;
     }
@@ -106,11 +118,15 @@ const onClickDay = (date: any, calendarItems: any) => {
 };
 
 onBeforeMount(async () => {
+  const personsData = await axios.get('/api/persons');
   const { data } = await axios.get('/api/deadlines');
-  const data2 = data.map((x: any) => ({ ...x, alarm: new Date(x.alarm), startDate: x.alarm, endDate: x.alarm, tooltip: x.content }));
+  const data2 = data.map((x: any) => ({ ...x, alarm: new Date(x.alarm), startDate: x.alarm, endDate: x.alarm }));
+  const data3 = personsData.data.map((x: any) => ({ ...x, startDate: x.bday, endDate: x.bday, title: '🎂' + x.name }));
+
+  const allData = data2.concat(data3);
   Object.assign(
     posts,
-    data2
+    allData
     // data2?.sort((a: any, b: any) => a.alarm.localeCompare(b.alarm))
   );
 
@@ -135,7 +151,7 @@ const saveNote = async () => {
     day: "numeric",
   };
 
-  console.log(thisPost.value);
+  // console.log(thisPost.value);
 
   const title = curDate.value.toLocaleDateString("ru-BY", options);
   // const time = Math.floor(curDate.value.getTime()) as any;
