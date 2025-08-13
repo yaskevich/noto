@@ -119,7 +119,7 @@ const onClickDay = (date: any, calendarItems: any) => {
 
 onBeforeMount(async () => {
   const personsData = await axios.get('/api/persons');
-  const { data } = await axios.get('/api/deadlines');
+  const { data } = await axios.get('/api/deadlines', { params: { days: 30 } });
   const data2 = data.map((x: any) => ({ ...x, alarm: new Date(x.alarm), startDate: x.alarm, endDate: x.alarm }));
   const data3 = personsData.data.map((x: any) => ({ ...x, startDate: x.bday, endDate: x.bday, title: '🎂' + x.name }));
 

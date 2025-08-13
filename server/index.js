@@ -201,7 +201,8 @@ app.post('/api/person', async (req, res) => {
 });
 
 app.get('/api/deadlines', async (req, res) => {
-  const deadlines = await db.all(`SELECT * FROM posts where alarm > datetime('now', '-180 day') AND deleted IS NOT TRUE`);
+  const days = Number(req.query.days) || 180;
+  const deadlines = await db.all(`SELECT * FROM posts where alarm > datetime('now', '-${days} day') AND deleted IS NOT TRUE`);
   res.json(deadlines);
 });
 
