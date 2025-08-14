@@ -168,7 +168,8 @@ app.post('/api/fav', async (req, res) => {
 });
 
 app.get('/api/persons', async (req, res) => {
-  const persons = await db.all(`SELECT * FROM persons`);
+  const days = Number(req.query.days) || 30;
+  const persons = await db.all(`SELECT * FROM persons WHERE (substr(current_date, 1,4) || substr(bday, 5)) > datetime('now', '-' || ? || ' day')`, [days]);
   res.json(persons);
 });
 
@@ -201,7 +202,7 @@ app.post('/api/person', async (req, res) => {
 });
 
 app.get('/api/deadlines', async (req, res) => {
-  const days = Number(req.query.days) || 180;
+  const days = Number(req.query.days) || 30;
   const deadlines = await db.all(`SELECT * FROM posts where alarm > datetime('now', '-${days} day') AND deleted IS NOT TRUE`);
   res.json(deadlines);
 });
