@@ -16,8 +16,8 @@
         <div class="col" v-for="day in week">
           <div :class="[0, 6].includes(day[6]) ? 'weekend' : ''">
             <Button severity="secondary" :class="'text-center p-3 border-round-sm ' + setRenderClass(day)"
-              :label="`${day[2]} ${checked ? helpers.months[day[4]] : day[1]}`" :title="`${day[1]}`"
-              @click="showEditor(day)" />
+              :label="`${day[2]} ${checked ? helpers.months[day[4]] : day[1]}`"
+              :title="`${datesDone?.[valToKey(day)]?.title || '<no data>'}`" @click="showEditor(day)" />
           </div>
         </div>
       </div>
@@ -107,7 +107,7 @@ const saveNote = async () => {
   const newPost = {
     title,
     content,
-    tags: selTags.value.map((x: any) => x.id),
+    tags: selTags.value?.map((x: any) => x.id),
     stamped: true,
     time: String(Date.now()),
     alarm: helpers.getLastMinute(curDate.value),
