@@ -169,7 +169,13 @@ app.post('/api/fav', async (req, res) => {
 
 app.get('/api/persons', async (req, res) => {
   const days = Number(req.query.days) || 30;
-  const persons = await db.all(`SELECT * FROM persons WHERE (substr(current_date, 1,4) || substr(bday, 5)) > datetime('now', '-' || ? || ' day')`, [days]);
+  let sql = 'SELECT * FROM persons';
+  const params = [];
+  if (!req.query.all) {
+    sql += `WHERE (substr(current_date, 1,4) || substr(bday, 5)) > datetime('now', '-' || ? || ' day')`;
+    params.push(days);
+  }
+  const persons = await db.all(sql, params);
   res.json(persons);
 });
 

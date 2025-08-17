@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount } from 'vue';
+import { reactive, onBeforeMount } from 'vue';
 import axios from 'axios';
 import router from '../router';
 import helpers from '../helpers';
@@ -29,7 +29,7 @@ const addPerson = () => {
 };
 
 onBeforeMount(async () => {
-  const { data } = await axios.get('/api/persons');
+  const { data } = await axios.get('/api/persons', { params: { all: 1 } });
   console.log(data);
   Object.assign(persons, data);
 });
