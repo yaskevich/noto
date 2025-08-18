@@ -7,7 +7,7 @@
       <div class="title mb-2">
         <Button :label="item.name" @click="goToPerson(item.id)" />
       </div>
-      <div class="title">{{ item.bday }}</div>
+      <div class="title">{{ helpers.formatDate(new Date(item.bday)) }}</div>
       <div v-if="item.content" v-html="helpers.html(item.content)" class="content"></div>
     </div>
   </div>
