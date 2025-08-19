@@ -172,7 +172,7 @@ app.get('/api/persons', async (req, res) => {
   let sql = 'SELECT * FROM persons';
   const params = [];
   if (!req.query.all) {
-    sql += `WHERE (substr(current_date, 1,4) || substr(bday, 5)) > datetime('now', '-' || ? || ' day')`;
+    sql += ` WHERE (substr(current_date, 1,4) || substr(bday, 5)) > datetime('now', '-' || ? || ' day')`;
     params.push(days);
   }
   const persons = await db.all(sql, params);
@@ -209,7 +209,7 @@ app.post('/api/person', async (req, res) => {
 
 app.get('/api/deadlines', async (req, res) => {
   const days = Number(req.query.days) || 30;
-  const deadlines = await db.all(`SELECT * FROM posts where alarm > datetime('now', '-${days} day') AND deleted IS NOT TRUE`);
+  const deadlines = await db.all(`SELECT * FROM posts where alarm > datetime('now', '-${days} day') AND wholeday IS NOT TRUE AND deleted IS NOT TRUE`);
   res.json(deadlines);
 });
 
