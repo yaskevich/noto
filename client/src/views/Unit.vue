@@ -4,11 +4,14 @@
     <div class="flex">
       <div class="mt-2">
         <Tag :severity="item.cat === 1 ? 'warning' : 'success'"
-          :value="props.categories.find(x => x.id === item.cat)?.title" class="mr-2"></Tag>
+          :value="props.categories.find(x => x.id === item.cat)?.title || '★'" class="mr-2"></Tag>
         <span class="p-1" v-if="item.alarm" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.alarm)
         }}</span>
+        <span class="p-1" v-if="item?.bday" style="color: orange; font-weight: bold">{{ helpers.renderDate(item?.bday,
+          true)
+          }}</span>
         <i class="pi pi-clock p-1" v-if="item.stamped" style="color:green"></i>
-        <span>{{ helpers.renderDate(item.time) }}</span>
+        <span v-if="!item?.bday">{{ helpers.renderDate(item.time) }}</span>
         <span class="title p-1">{{ item.title }}</span>
       </div>
       <div class="ml-auto">

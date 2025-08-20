@@ -22,14 +22,15 @@ const ms = [
 ];
 
 
-const renderDate = (x: any) => {
+const renderDate = (x: any, day = false) => {
   const num = Number(x);
   // if (x) {
   const utc = new Date(num ? num : x);
   // const offset = utc.getTimezoneOffset();
   // const local = new Date(utc.getTime() - (num ? 0 : offset * 60000));
   const local = new Date(utc.getTime());
-  return local.toLocaleString('en-UK').split('/').join('.').replace(',', '').slice(0, -3);
+  const arr = local.toLocaleString('en-UK').split('/').join('.').replace(',', '');
+  return arr.slice(0, day ? -8 : -3);
   // }
 };
 
