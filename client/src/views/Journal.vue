@@ -39,6 +39,9 @@
         </div>
         <editor-content :editor="editor" class="editor" />
       </div>
+      <div> Completed
+        <ToggleSwitch v-model="completed" />
+      </div>
       <div class="mb-2">
         <MultiSelect v-model="selTags" :options="tags" optionLabel="title" filter placeholder="Select tags"
           :maxSelectedLabels="3" class="w-full md:w-80" />
@@ -77,9 +80,12 @@ const tags = ref([] as Array<ICat>);
 const curDate = ref();
 const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num, date.getDay()];
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
+const completed = ref(true);
 
 const setRenderClass = (val: Array<number>) => {
   if (Object.keys(datesDone.value)?.includes(valToKey(val))) {
+    console.log(datesDone.value[valToKey(val)]?.completed);
+    
     if (!val[5]) {
       return 'bg-green-500';
     }
@@ -115,6 +121,7 @@ const saveNote = async () => {
     faved: false,
     deleted: false,
     cat: 1,
+    completed: completed.value || true,
   } as IPost;
 
   const key = helpers.formatDate(curDate.value);
@@ -125,6 +132,7 @@ const saveNote = async () => {
     posts.push(fullPost);
     datesDone.value[key] = fullPost;
     visible.value = false;
+    completed.value = true;
   }
 };
 

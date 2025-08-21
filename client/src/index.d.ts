@@ -40,5 +40,8 @@ declare global {
     full?: boolean;
     wholeday?: boolean;
     tags: any;
+    startDate?: Date;
+    bday?: Date;
+    completed: boolean;
   }
 }

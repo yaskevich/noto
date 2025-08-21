@@ -24,7 +24,8 @@ const schemePosts = `CREATE TABLE IF NOT EXISTS posts (
   [faved] BOOLEAN DEFAULT FALSE,
   [stamped] BOOLEAN DEFAULT FALSE,
   [cat] INTEGER NOT NULL DEFAULT 1,
-  [tags] JSON
+  [tags] JSON,
+  [completed] BOOLEAN DEFAULT TRUE
   )`;
 
 const schemeCats = `CREATE TABLE IF NOT EXISTS cats (
@@ -140,7 +141,7 @@ app.post('/api/note', async (req, res) => {
   console.log('req.body', req.body);
   fs.appendFileSync('log.txt', JSON.stringify(req.body));
   if (req.body.id) {
-    const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?), cat = ?, time =?, wholeday=?, tags = json(?) WHERE id = ?`, [
+    const result = await db.run(`UPDATE posts SET title = ?, alarm = ?, content = json(?), cat = ?, time =?, wholeday=?, tags = json(?), completed = ? WHERE id = ?`, [
       req.body.title,
       req.body.alarm,
       JSON.stringify(req.body.content),
@@ -148,13 +149,14 @@ app.post('/api/note', async (req, res) => {
       req.body.time,
       req.body.wholeday,
       JSON.stringify(req.body.tags),
+      req.body.completed,
       req.body.id,
     ]);
     response = { id: req.body.id };
   } else {
     const result = await db.run(
-      `INSERT INTO posts (title, alarm, content, stamped, cat, time, wholeday, tags) VALUES ( ?, ?, json(?), ?, ?, ?, ?, json(?))`,
-      [req.body.title, req.body.alarm || null, JSON.stringify(req.body.content), req.body.stamped, req.body.cat, req.body.time, req.body.wholeday, JSON.stringify(req.body.tags)]
+      `INSERT INTO posts (title, alarm, content, stamped, cat, time, wholeday, tags, completed) VALUES ( ?, ?, json(?), ?, ?, ?, ?, json(?),?)`,
+      [req.body.title, req.body.alarm || null, JSON.stringify(req.body.content), req.body.stamped, req.body.cat, req.body.time, req.body.wholeday, JSON.stringify(req.body.tags), req.body.completed]
     );
     response = { id: result.lastID };
   }

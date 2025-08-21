@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center" style="text-align: center;">
+  <div class="text-center" style="text-align: center;" v-show="isLoaded">
     <InputText id="name" aria-describedby="name-help" type="text" v-model="note.title" class="p-d-block p-mx-auto"
       autocomplete="off" />
     <Button label="Save" @click="handleClick" />
@@ -9,6 +9,9 @@
       <!-- <label for="time24">Date time</label> -->
       <DatePicker id="time24" v-model="note.alarm" :showTime="true" :showIcon="true" :showButtonBar="true"
         :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
+    </div>
+    <div> Completed
+      <ToggleSwitch v-model="completed" />
     </div>
     <div class="card flex justify-center">
       <MultiSelect v-model="selectedTags" :options="tags" optionLabel="title" optionsValue="id" filter
@@ -34,6 +37,8 @@ const cats = reactive([] as Array<ICat>);
 const vuerouter = useRoute();
 const id = vuerouter.params.id;
 const selectedCat = ref(1);
+const completed = ref(true);
+const isLoaded = ref(false);
 
 const getTags = (str: string) => str ? JSON.parse(str) : [];
 
@@ -48,6 +53,7 @@ onBeforeMount(async () => {
       data.alarm = new Date(data.alarm);
     }
 
+    completed.value = data.completed ? true : false;
     const tagIds = getTags(data.tags);
     selectedTags.value = tagsData.data.filter((x: any) => tagIds.find((y: any) => y === x.id));
 
@@ -62,6 +68,7 @@ onBeforeMount(async () => {
       res.data
     );
   }
+  isLoaded.value = true;
 });
 
 const handleClick = async () => {
@@ -73,6 +80,7 @@ const handleClick = async () => {
   datum.content = editor.value?.getJSON() || '';
   datum.tags = selectedTags.value.map((x: any) => x.id);
   console.log('note', datum);
+  datum.completed = completed.value;
 
   const { data } = await axios.post('/api/note', datum);
   console.log('post', data.id);
