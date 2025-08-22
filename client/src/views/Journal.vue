@@ -84,8 +84,9 @@ const completed = ref(true);
 
 const setRenderClass = (val: Array<number>) => {
   if (Object.keys(datesDone.value)?.includes(valToKey(val))) {
-    console.log(datesDone.value[valToKey(val)]?.completed);
-    
+    if (datesDone.value[valToKey(val)]?.completed === 0) {
+      return 'bg-orange-400';
+    }
     if (!val[5]) {
       return 'bg-green-500';
     }
