@@ -18,10 +18,14 @@
             <Button severity="secondary" :class="'text-center p-3 border-round-sm ' + setRenderClass(day)"
               :label="`${day[2]} ${checked ? helpers.months[day[4]] : day[1]}`"
               :title="`${datesDone?.[valToKey(day)]?.title || '<no data>'}`" @click="showEditor(day)" />
+            <div>{{
+              tagIdToTitle(day)
+            }}</div>
           </div>
         </div>
       </div>
     </div>
+
 
     <div class="text-center">
       <Unit :categories="cats" v-for="entry in posts" :post="entry" />
@@ -81,6 +85,15 @@ const curDate = ref();
 const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num, date.getDay()];
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
 const completed = ref(true);
+
+const tagIdToTitle = (day: Array<number>) => {
+  const item = datesDone.value?.[valToKey(day)];
+  const tagString = item?.tags;
+  if (tagString) {
+    return JSON.parse(tagString).map((x: any) => tags.value.find(y => y.id === x)).map((x: any) => x?.title.slice(0, 3)).join();
+  }
+  return '';
+};
 
 const setRenderClass = (val: Array<number>) => {
   if (Object.keys(datesDone.value)?.includes(valToKey(val))) {
