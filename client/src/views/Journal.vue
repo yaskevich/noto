@@ -178,16 +178,9 @@ const toKey = (val: IPost) => {
   }
 };
 
-onBeforeMount(async () => {
-  const { data } = await axios.get('/api/dated');
+const getData = async () => {
+  const { data } = await axios.get('/api/dated', { params: { days: selectedNumber.value } });
   // console.log(data);
-  const tagsData = await axios.get('/api/tags');
-  tags.value = tagsData.data;
-  const res = await axios.get('/api/cats');
-  Object.assign(
-    cats,
-    res.data
-  );
   data.filter((x: IPost) => x.wholeday && x.time && x).map((x: IPost) => toKey(x));
   Object.assign(
     posts,
@@ -197,6 +190,17 @@ onBeforeMount(async () => {
       return btime.localeCompare(atime);
     })
   );
+}
+
+onBeforeMount(async () => {
+  const tagsData = await axios.get('/api/tags');
+  tags.value = tagsData.data;
+  const res = await axios.get('/api/cats');
+  Object.assign(
+    cats,
+    res.data
+  );
+  await getData();
   isLoaded.value = true;
 });
 
@@ -240,7 +244,8 @@ const makeList = () => {
   );
 };
 
-const change = () => {
+const change = async () => {
+  await getData();
   makeList();
 };
 
