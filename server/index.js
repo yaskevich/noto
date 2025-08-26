@@ -35,7 +35,8 @@ const schemeCats = `CREATE TABLE IF NOT EXISTS cats (
 
 const schemeTags = `CREATE TABLE IF NOT EXISTS tags (
     [id] integer NOT NULL PRIMARY KEY UNIQUE,
-    [title] TEXT
+    [title] TEXT,
+    [emoji] TEXT
     )`;
 
 const schemeTagsToPosts = `CREATE TABLE IF NOT EXISTS tagsposts (
@@ -100,15 +101,16 @@ app.get('/api/tags', async (req, res) => {
 app.post('/api/tags', async (req, res) => {
   if (req.body.title) {
     if (req.body.id) {
-      const result = await db.run(`UPDATE tags SET title = ? WHERE id = ?`, [
+      const result = await db.run(`UPDATE tags SET title = ?, emoji = ? WHERE id = ?`, [
         req.body.title,
+        req.body.emoji,
         Number(req.body.id),
       ]);
       res.json(result);
     } else {
       const result = await db.run(
-        `INSERT INTO tags (title) VALUES(?)`,
-        [req.body.title]
+        `INSERT INTO tags (title, emoji) VALUES(?,?)`,
+        [req.body.title, req.body.emoji]
       );
       res.json(result);
     }

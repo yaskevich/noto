@@ -15,7 +15,7 @@
         </div>
         <div class="flex justify-end gap-2">
             <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
-            <Button type="button" label="Save" @click="visible = false"></Button>
+            <Button type="button" label="Save" @click="saveItem"></Button>
         </div>
     </Dialog>
 </template>
@@ -33,7 +33,7 @@ const selectedEmoji = ref<string>('');
 const title = ref('');
 const tags = ref([] as Array<ICat>);
 
-const renameTag = async (entry: ICat, num: number) => {
+const renameTag = async (entry: ICat, num?: number) => {
     const result = await h.save('tags', entry);
     if (result.changes) {
         console.log(result, entry, num);
@@ -41,7 +41,7 @@ const renameTag = async (entry: ICat, num: number) => {
 };
 
 const addTag = async () => {
-    const result = await h.save('tags', { title: title.value });
+    const result = await h.save('tags', { title: title.value, emoji: selectedEmoji.value || '' });
     // console.log(title.value, result);
     if (result.changes) {
         tags.value.push({ id: result.lastID, title: title.value })
@@ -52,11 +52,14 @@ const addTag = async () => {
 const onSelectEmoji = async (emoji: any) => {
     console.log('selected', emoji.i);
     selectedEmoji.value = emoji.i;
+};
+
+const saveItem = async () => {
     if (selected.value) {
-        selected.value.emoji = emoji.i;
-        console.log(selected.value);
-        console.log(emoji.i);
+        selected.value.emoji = selectedEmoji.value;
+        await renameTag(selected.value)
     }
+    visible.value = false;
 };
 
 const renderDialog = (item: ICat) => {
