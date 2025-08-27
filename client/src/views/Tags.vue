@@ -1,11 +1,20 @@
 <template>
-    <div class="mb-4">
-        <InputText type="text" v-model="title" /><Button label="Save" @click="addTag" />
-    </div>
-    <div v-for="(item, index) in tags" style="font-weight: bold; margin-bottom:1rem; color:red">
-        <Button label="Delete" severity="danger" @click="deleteTag(item, index)" />
-        <Button :label="item?.emoji || '?'" severity="secondary" @click="renderDialog(item)" />
-        <InputText type="text" v-model="item.title" /> <Button label="Rename" @click="renameTag(item, index)" />
+    <div class="text-center">
+        <div class="mb-4">
+            <InputText type="text" v-model="title" /><Button label="Add" @click="addTag" />
+        </div>
+
+        <div v-for="(item, index) in tags" class="p-1" style="max-width:350px;margin: 0 auto">
+            <div class="flex justify-content-between flex-wrap">
+                <div class="flex align-items-center justify-content-center">
+                    <Button :label="(item?.emoji || '?') + ' ' + item.title" severity="secondary"
+                        @click="renderDialog(item)" />
+                </div>
+                <div class="flex align-items-center justify-content-center">
+                    <Button label="Delete" severity="danger" @click="deleteTag(item, index)" />
+                </div>
+            </div>
+        </div>
     </div>
 
     <Dialog v-model:visible="visible" modal :header="'Update emoji: ' + selectedEmoji" :style="{ width: '25rem' }">
@@ -13,6 +22,10 @@
         <div class="flex items-center gap-4 mb-4">
             <EmojiPicker :native="true" @select="onSelectEmoji" disable-skin-tones />
         </div>
+        <div class="flex justify-end gap-2 mb-4">
+            <InputText type="text" v-model="selectedTitle" />
+        </div>
+
         <div class="flex justify-end gap-2">
             <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
             <Button type="button" label="Save" @click="saveItem"></Button>
@@ -29,6 +42,7 @@ import 'vue3-emoji-picker/css';
 const selected = ref<ICat>();
 const visible = ref(false);
 const selectedEmoji = ref<string>('');
+const selectedTitle = ref<string>('');
 
 const title = ref('');
 const tags = ref([] as Array<ICat>);
@@ -57,6 +71,7 @@ const onSelectEmoji = async (emoji: any) => {
 const saveItem = async () => {
     if (selected.value) {
         selected.value.emoji = selectedEmoji.value;
+        selected.value.title = selectedTitle.value;
         await renameTag(selected.value)
     }
     visible.value = false;
@@ -65,6 +80,7 @@ const saveItem = async () => {
 const renderDialog = (item: ICat) => {
     selected.value = item;
     selectedEmoji.value = item?.emoji || '';
+    selectedTitle.value = item?.title || '';
     visible.value = true;
 };
 
