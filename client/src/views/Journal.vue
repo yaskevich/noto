@@ -18,9 +18,7 @@
             <Button severity="secondary" :class="'text-center p-3 border-round-sm ' + setRenderClass(day)"
               :label="`${day[2]} ${checked ? helpers.months[day[4]] : day[1]}`"
               :title="`${datesDone?.[valToKey(day)]?.title || '<no data>'}`" @click="showEditor(day)" />
-            <div>{{
-              tagIdToTitle(day)
-            }}</div>
+            <div v-html="tagIdToTitle(day)"></div>
           </div>
         </div>
       </div>
@@ -67,6 +65,7 @@ import helpers from '../helpers';
 import router from '../router';
 import { EditorContent } from '@tiptap/vue-3';
 
+
 const posts = reactive([] as Array<IPost>);
 const cats = reactive([] as Array<ICat>);
 const order = (new Date()).getDay();
@@ -90,7 +89,7 @@ const tagIdToTitle = (day: Array<number>) => {
   const item = datesDone.value?.[valToKey(day)];
   const tagString = item?.tags;
   if (tagString) {
-    return JSON.parse(tagString).map((x: any) => tags.value.find(y => y.id === x)).map((x: any) => x?.title.slice(0, 3)).join();
+    return JSON.parse(tagString).map((x: any) => tags.value.find(y => y.id === x)).map((x: any) => '<span title="' + x?.title + '">' + (x?.emoji || x?.title.slice(0, 2)) + '</span>').join(' ');
   }
   return '';
 };
