@@ -98,6 +98,11 @@ app.get('/api/tags', async (req, res) => {
   res.json(cats);
 });
 
+app.get('/api/tagstat', async (req, res) => {
+  const stat = await db.all('select tag.value as tg, count(tag.value) as qty from posts, json_each(tags) as tag group by tg');
+  res.json(Object.fromEntries(stat.map(x => [x.tg, x.qty])));
+});
+
 app.post('/api/tags', async (req, res) => {
   if (req.body.title) {
     if (req.body.id) {

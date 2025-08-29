@@ -10,8 +10,9 @@
                     <Button :label="(item?.emoji || '?') + ' ' + item.title" severity="secondary"
                         @click="renderDialog(item)" />
                 </div>
+
                 <div class="flex align-items-center justify-content-center">
-                    <Button label="Delete" severity="danger" @click="deleteTag(item, index)" />
+                    {{ tagstat[item.id] }}<Button label="Delete" severity="danger" @click="deleteTag(item, index)" />
                 </div>
             </div>
         </div>
@@ -46,6 +47,7 @@ const selectedTitle = ref<string>('');
 
 const title = ref('');
 const tags = ref([] as Array<ICat>);
+const tagstat = ref({} as keyable);
 
 const renameTag = async (entry: ICat, num?: number) => {
     const result = await h.save('tags', entry);
@@ -92,5 +94,8 @@ const deleteTag = async (entry: ICat, num: number) => {
     }
 };
 
-onBeforeMount(async () => tags.value = await h.get('tags'));
+onBeforeMount(async () => {
+    tags.value = await h.get('tags');
+    tagstat.value = await h.get('tagstat');
+});
 </script>
