@@ -93,6 +93,27 @@ app.get('/api/cats', async (req, res) => {
   res.json(cats);
 });
 
+app.post('/api/cats', async (req, res) => {
+  if (req.body.title) {
+    if (req.body.id) {
+      const result = await db.run(`UPDATE cats SET title = ? WHERE id = ?`, [
+        req.body.title,
+        Number(req.body.id),
+      ]);
+      res.json(result);
+    } else {
+      const result = await db.run(
+        `INSERT INTO cats (title) VALUES(?)`,
+        [req.body.title]
+      );
+      res.json(result);
+    }
+  } else {
+    res.json({});
+  }
+});
+
+
 app.get('/api/tags', async (req, res) => {
   const cats = await db.all(`SELECT * FROM tags`);
   res.json(cats);
