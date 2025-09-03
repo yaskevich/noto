@@ -11,8 +11,8 @@
                         @click="renderDialog(item)" />
                 </div>
 
-                <div class="flex align-items-center justify-content-center">
-                    {{ tagstat[item.id] }}<Button label="Delete" severity="danger" @click="deleteTag(item, index)" />
+                <div class="flex align-items-center justify-content-center font-bold">
+                    {{ tagstat[item.id] }}
                 </div>
             </div>
         </div>
@@ -29,6 +29,7 @@
 
         <div class="flex justify-end gap-2">
             <Button type="button" label="Cancel" severity="secondary" @click="visible = false"></Button>
+            <Button label="Delete" severity="danger" @click="deleteTag" />
             <Button type="button" label="Save" @click="saveItem"></Button>
         </div>
     </Dialog>
@@ -44,7 +45,6 @@ const selected = ref<ICat>();
 const visible = ref(false);
 const selectedEmoji = ref<string>('');
 const selectedTitle = ref<string>('');
-
 const title = ref('');
 const tags = ref([] as Array<ICat>);
 const tagstat = ref({} as keyable);
@@ -86,11 +86,17 @@ const renderDialog = (item: ICat) => {
     visible.value = true;
 };
 
-const deleteTag = async (entry: ICat, num: number) => {
-    const result = await h.del('tags', { id: entry.id });
-    if (result) {
-        console.log("delete", entry.id, result, num);
-        tags.value.splice(num, 1);
+const deleteTag = async () => {
+    if (selected?.value?.id) {
+        const id = selected?.value?.id;
+        const result = await h.del('tags', { id });
+        if (result) {
+            console.log("delete", selected.value);
+            tags.value = tags.value.filter((item: ICat) => item!.id !== id);
+            visible.value = false;
+        }
+    } else {
+        console.log("removal error");
     }
 };
 
