@@ -6,10 +6,10 @@
         <Tag :severity="item.cat === 1 ? 'warning' : 'success'"
           :value="props.categories.find(x => x.id === item.cat)?.title || '★'" class="mr-2"></Tag>
         <span class="p-1" v-if="item.alarm" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.alarm)
-        }}</span>
+          }}</span>
         <span class="p-1" v-if="item?.bday" style="color: orange; font-weight: bold">{{ helpers.renderDate(item?.bday,
           true)
-          }}</span>
+        }}</span>
         <i class="pi pi-clock p-1" v-if="item.stamped" style="color:green"></i>
         <span v-if="!item?.bday">{{ helpers.renderDate(item.time) }}</span>
         <span class="title p-1">{{ item.title }}</span>
@@ -17,7 +17,7 @@
       <div class="ml-auto">
         <Button icon="pi pi-times-circle" severity="danger" class="p-button-text" @click="remove(item)" />
         <Button :icon="`pi pi-heart${item?.faved ? '-fill' : ''}`" class="p-button-text" @click="addToFavs(item)" />
-        <Button v-if="item?.id" icon="pi pi-pencil" class="p-button-text" @click="goToNote(item.id)" />
+        <Button v-if="item?.id" icon="pi pi-pencil" class="p-button-text" @click="goToNote(item.id, item)" />
         <Button :disabled="!item.title" :icon="'pi pi-' + (item.full ? 'minus' : 'plus')" class="p-button-text"
           @click="item.full = !item.full" />
       </div>
@@ -27,7 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
 import axios from 'axios';
 import router from '../router';
 import helpers from '../helpers';
@@ -38,11 +37,10 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-// console.log(props);
 const item = props.post;
 
-const goToNote = (id: number) => {
-  router.push(`/note/${id}`);
+const goToNote = (id: number, item: IPost) => {
+  router.push(item?.bday ? `/person/${id}` : `/note/${id}`);
 };
 
 const remove = async (post: IPost) => {
@@ -54,7 +52,7 @@ const remove = async (post: IPost) => {
 const addToFavs = async (item: IPost) => {
   console.log('like!');
   item.faved = !item.faved;
-  const { data } = await axios.post('/api/fav', { id: item.id, status: item.faved });
+  const { data } = await helpers.save('fav', { id: item.id, status: item.faved });
   console.log(data);
 };
 </script>
