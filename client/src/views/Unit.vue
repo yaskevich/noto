@@ -6,13 +6,14 @@
         <Tag :severity="item.cat === 1 ? 'warning' : 'success'"
           :value="props.categories.find(x => x.id === item.cat)?.title || '★'" class="mr-2"></Tag>
         <span class="p-1" v-if="item.alarm" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.alarm)
-          }}</span>
+        }}</span>
         <span class="p-1" v-if="item?.bday" style="color: orange; font-weight: bold">{{ helpers.renderDate(item?.bday,
           true)
-        }}</span>
+          }}</span>
         <i class="pi pi-clock p-1" v-if="item.stamped" style="color:green"></i>
         <span v-if="!item?.bday">{{ helpers.renderDate(item.time) }}</span>
         <span class="title p-1">{{ item.title }}</span>
+        <span v-html="renderTags(item.tags)"></span>
       </div>
       <div class="ml-auto">
         <Button icon="pi pi-times-circle" severity="danger" class="p-button-text" @click="remove(item)" />
@@ -33,11 +34,20 @@ import helpers from '../helpers';
 
 interface Props {
   post: IPost;
-  categories: Array<ICat>
+  tags: Array<ICat>;
+  categories: Array<ICat>;
 }
 
 const props = defineProps<Props>();
 const item = props.post;
+
+const renderTags = (val: Array<ICat>) => {
+if (val){
+  const arr = typeof val === "string" ? JSON.parse(val) : val;
+  return arr.map((x: any) => props.tags.find(y => y.id === x)).map((x: any) => '<span title="' + x?.title + '">' + (x?.emoji || x?.title.slice(0, 2)) + '</span>').join(' ');
+  }
+  return '';
+}
 
 const goToNote = (id: number, item: IPost) => {
   router.push(item?.bday ? `/person/${id}` : `/note/${id}`);

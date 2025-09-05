@@ -47,7 +47,7 @@
           </div>
         </div>
       </div>
-      <Unit v-for="entry in posts" :post="entry" :categories="cats" :key="entry.id" />
+      <Unit v-for="entry in posts" :post="entry" :categories="cats" :tags="tags" :key="entry.id" />
     </div>
   </div>
 </template>
@@ -68,7 +68,7 @@ const editor = helpers.setupEditor(content.value);
 const cat = ref(0);
 const calRef = ref(null as any);
 const searchword = ref('');
-
+const tags = ref([]);
 
 const inputSearch = async () => {
   console.log(searchword.value);
@@ -99,6 +99,7 @@ const getPosts = async () => {
 
 onBeforeMount(async () => {
   await getPosts();
+  tags.value = await helpers.get('tags');
 });
 
 const changeCategory = async (id: number) => {
