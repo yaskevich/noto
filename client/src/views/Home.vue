@@ -53,11 +53,13 @@
 </template>
 <script setup lang="ts">
 import { ref, reactive, onBeforeMount } from 'vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 import Unit from './Unit.vue';
 import helpers from '../helpers';
 import { EditorContent } from '@tiptap/vue-3';
 
+const route = useRoute();
 const userinput = ref('');
 const content = ref('');
 const userdate = ref();
@@ -78,16 +80,12 @@ const inputSearch = async () => {
   }
 };
 
-
-
 const getPosts = async () => {
-  const { data } = await axios.get('/api/data', { params: { cat: cat.value } });
-  // console.log(data);
+  const { data } = await axios.get('/api/data', { params: { cat: cat.value, mode: route.params.id } });
   if (data?.posts?.length) {
     const processed = data?.posts
       // ?.sort((a: any, b: any) => b.time - a.time)
       // .reverse()
-      // .filter((x: any) => (selection === 'favs' ? x?.faved : x.id))
       // .slice(0, 2)
       ;
     posts.value = processed;

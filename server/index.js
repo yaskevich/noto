@@ -80,9 +80,11 @@ app.use(express.static('public'));
 app.get('/api/data', async (req, res) => {
   const cat = Number(req.query.cat);
   const search = req.query.search;
+  const mode = req.query.mode;
   const ext = cat ? 'AND cat = ' + cat : '';
   const ext2 = search ? 'AND content LIKE "%' + search + '%"' : '';
-  const sql = `SELECT * FROM posts WHERE deleted IS NOT TRUE ${ext} ${ext2} ORDER BY id DESC`;
+  const ext3 = mode === 'favs' ? 'AND faved IS TRUE' : ''
+  const sql = `SELECT * FROM posts WHERE deleted IS NOT TRUE ${ext} ${ext2} ${ext3} ORDER BY id DESC`;
   const posts = await db.all(sql);
   const cats = await db.all(`SELECT * FROM cats`);
   res.json({ posts, cats });
@@ -112,7 +114,6 @@ app.post('/api/cats', async (req, res) => {
     res.json({});
   }
 });
-
 
 app.get('/api/tags', async (req, res) => {
   const cats = await db.all(`SELECT * FROM tags`);
