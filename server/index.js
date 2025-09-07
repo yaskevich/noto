@@ -84,7 +84,7 @@ app.get('/api/data', async (req, res) => {
   const ext = cat ? 'AND cat = ' + cat : '';
   const ext2 = search ? 'AND content LIKE "%' + search + '%"' : '';
   const ext3 = mode === 'favs' ? 'AND faved IS TRUE' : ''
-  const sql = `SELECT * FROM posts WHERE deleted IS NOT TRUE ${ext} ${ext2} ${ext3} ORDER BY id DESC`;
+  const sql = `SELECT * FROM posts WHERE deleted IS NOT TRUE AND wholeday IS NOT TRUE ${ext} ${ext2} ${ext3} ORDER BY id DESC`;
   const posts = await db.all(sql);
   const cats = await db.all(`SELECT * FROM cats`);
   res.json({ posts, cats });
