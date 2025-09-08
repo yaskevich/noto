@@ -26,6 +26,7 @@ declare global {
   interface ICat {
     title: string;
     id: number;
+    emoji?: string;
   }
   interface IPost {
     title: string;

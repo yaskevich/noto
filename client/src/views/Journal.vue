@@ -26,7 +26,7 @@
 
 
     <div class="text-center">
-      <Unit :categories="cats" v-for="entry in posts" :post="entry" />
+      <Unit :categories="cats" v-for="entry in posts" :post="entry" :tags="tags"/>
     </div>
   </div>
 
