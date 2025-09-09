@@ -26,7 +26,7 @@
 
 
     <div class="text-center">
-      <Unit :categories="cats" v-for="entry in posts" :post="entry" :tags="tags"/>
+      <Unit :categories="cats" v-for="entry in posts" :post="entry" :tags="tags" />
     </div>
   </div>
 
@@ -178,13 +178,17 @@ const toKey = (val: IPost) => {
 };
 
 const getData = async () => {
-  const data = await helpers.get('dated', { params: { days: selectedNumber.value } });
-  data.filter((x: IPost) => x.wholeday && x.time && x).map((x: IPost) => toKey(x));
-  posts.value = data?.sort((a: any, b: any) => {
-    const atime = a.stamped ? (Number.isInteger(a.time) ? (new Date(a.time)).toISOString() : a.time) : a.alarm;
-    const btime = b.stamped ? (Number.isInteger(b.time) ? (new Date(b.time)).toISOString() : b.time) : b.alarm;
-    return btime.localeCompare(atime);
-  });
+  const data = await helpers.get('dated', { days: selectedNumber.value });
+  if (data?.length) {
+    posts.value = data
+      .filter((x: IPost) => x?.wholeday && x?.time)
+      .sort((a: any, b: any) => {
+        const atime = a.stamped ? (Number.isInteger(a.time) ? (new Date(a.time)).toISOString() : a.time) : a.alarm;
+        const btime = b.stamped ? (Number.isInteger(b.time) ? (new Date(b.time)).toISOString() : b.time) : b.alarm;
+        return btime.localeCompare(atime);
+      });
+    posts.value.forEach((x: IPost) => toKey(x));
+  }
 };
 
 onBeforeMount(async () => {
