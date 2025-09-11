@@ -159,6 +159,19 @@ app.delete('/api/tags', async (req, res) => {
   }
 });
 
+app.delete('/api/cats', async (req, res) => {
+  const id = Number(req.body.id);
+  const posts = await db.all('SELECT posts.id FROM posts WHERE cat = ?', [id]);
+  if (!posts?.length) {
+    const result = await db.run(`DELETE from cats WHERE id = ?`, [req.body.id])
+    res.json(result);
+  }
+  else {
+    res.json({});
+  }
+});
+
+
 app.get('/api/note', async (req, res) => {
   const id = req.query.id || 1;
   const note = await db.all(`SELECT * FROM posts WHERE id = ?`, [id]);

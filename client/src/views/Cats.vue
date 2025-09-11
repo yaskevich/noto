@@ -6,6 +6,7 @@
 
         <div v-for="(item, index) in cats" :key="index" class="p-1" style="max-width:300px;margin: 0 auto">
             <InputGroup class="">
+                <Button icon="pi pi-trash" severity="danger" @click="deleteItem(item)" />
                 <InputText type="text" v-model="item.title" />
                 <Button icon="pi pi-check" @click="saveItem(item)" />
             </InputGroup>
@@ -23,6 +24,18 @@ const cats = ref([] as Array<ICat>);
 const saveItem = async (item: ICat) => {
     const result = await h.save('cats', item);
     console.log(result);
+};
+
+const deleteItem = async (item: ICat) => {
+    if (item?.id) {
+        const result = await h.del('cats', { id: item.id });
+        if (result) {
+            console.log("delete", item);
+            cats.value = cats.value.filter((x: ICat) => x!.id !== item.id);
+        } else {
+            console.log("removal error");
+        }
+    }
 };
 
 const addItem = async () => {
