@@ -1,9 +1,10 @@
 <template>
   <div v-show="isLoaded">
-    <div class="card flex justify-center">
+    <div class="card flex justify-center p-3">
       <Select v-model="selectedNumber" :options="range" placeholder="range" class="w-full md:w-56"
         @update:modelValue="change" style="max-width: 7rem;" />
       <ToggleSwitch v-model="checked" />
+      <DatePicker v-model="selectedMonth" view="month" dateFormat="mm/yy" @update:modelValue="change" />
     </div>
     <div class="grid">
       <div class="col" v-for="day in weekdays">
@@ -79,6 +80,7 @@ const editor = helpers.setupEditor(thisPost?.value?.content || '');
 const selTags = ref();
 const tags = ref([] as Array<ICat>);
 const curDate = ref();
+const selectedMonth = ref();
 
 const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num, date.getDay()];
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
@@ -178,7 +180,10 @@ const toKey = (val: IPost) => {
 };
 
 const getData = async () => {
-  const data = await helpers.get('dated', { days: selectedNumber.value });
+  const from = selectedMonth.value ?
+    helpers.formatDate(new Date(selectedMonth.value.getFullYear(), selectedMonth.value.getMonth() + 1, 0)) : '';
+
+  const data = await helpers.get('dated', { days: selectedNumber.value, from });
   if (data?.length) {
     posts.value = data
       .filter((x: IPost) => x?.wholeday && x?.time)

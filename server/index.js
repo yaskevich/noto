@@ -259,7 +259,13 @@ app.get('/api/deadlines', async (req, res) => {
 
 app.get('/api/dated', async (req, res) => {
   const days = Number(req.query.days) || 30;
-  const posts = await db.all(`SELECT * FROM posts WHERE (stamped = 1 OR alarm is not null) AND deleted IS NOT TRUE AND wholeday IS TRUE AND alarm > datetime('now', '-${days} day')`);
+  const from = req.query.from;
+  console.log(days, from);
+const when = req.query.from || 'now';
+const sql = `SELECT * FROM posts WHERE (stamped = 1 OR alarm is not null) AND deleted IS NOT TRUE AND wholeday IS TRUE AND alarm > datetime('${when}', '-${days} day') AND alarm < datetime('${when}')`;
+console.log(sql);
+const posts = await db.all(sql);
+
   res.json(posts);
 });
 
