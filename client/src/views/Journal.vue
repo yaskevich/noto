@@ -25,9 +25,8 @@
       </div>
     </div>
 
-
     <div class="text-center">
-      <Unit :categories="cats" v-for="entry in posts" :post="entry" :tags="tags" />
+      <Unit :categories="cats" v-for="entry in posts" :post="entry" :tags="tags" :key="entry.time" />
     </div>
   </div>
 
@@ -188,9 +187,10 @@ const getData = async () => {
     posts.value = data
       .filter((x: IPost) => x?.wholeday && x?.time)
       .sort((a: any, b: any) => {
-        const atime = a.stamped ? (Number.isInteger(a.time) ? (new Date(a.time)).toISOString() : a.time) : a.alarm;
-        const btime = b.stamped ? (Number.isInteger(b.time) ? (new Date(b.time)).toISOString() : b.time) : b.alarm;
-        return btime.localeCompare(atime);
+        // const atime = a.stamped ? (Number.isInteger(a.time) ? (new Date(a.time)).toISOString() : a.time) : a.alarm;
+        // const btime = b.stamped ? (Number.isInteger(b.time) ? (new Date(b.time)).toISOString() : b.time) : b.alarm;
+        // return btime.localeCompare(atime);
+        return b.alarm.localeCompare(a.alarm);
       });
     posts.value.forEach((x: IPost) => toKey(x));
   }
