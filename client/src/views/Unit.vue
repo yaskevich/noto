@@ -3,9 +3,9 @@
     :title="helpers.renderDate(item?.time)">
     <div class="flex">
       <div class="mt-2">
-        <Tag :severity="item.cat === 1 ? 'warning' : 'success'"
+        <Tag v-if="!item?.wholeday" :severity="item.cat === 1 ? 'warning' : 'success'"
           :value="props.categories.find(x => x.id === item.cat)?.title || '★'" class="mr-2"></Tag>
-        <span class="p-1" v-if="item.alarm" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.alarm)
+        <span class="p-1" v-if="item.alarm" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.alarm, item?.wholeday)
         }}</span>
         <span class="p-1" v-if="item?.bday" style="color: orange; font-weight: bold">{{ helpers.renderDate(item?.bday,
           true)
