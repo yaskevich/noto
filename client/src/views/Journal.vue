@@ -5,6 +5,8 @@
         @update:modelValue="change" style="max-width: 7rem;" />
       <ToggleSwitch v-model="checked" />
       <DatePicker v-model="selectedMonth" view="month" dateFormat="mm/yy" @update:modelValue="change" />
+      <Select v-model="tagToRender" :options="tags" optionLabel="title" filter placeholder="Select tags"
+        class="w-full md:w-56" />
     </div>
     <div class="grid">
       <div class="col" v-for="day in weekdays">
@@ -80,6 +82,7 @@ const selTags = ref();
 const tags = ref([] as Array<ICat>);
 const curDate = ref();
 const selectedMonth = ref();
+const tagToRender = ref<ICat>();
 
 const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num, date.getDay()];
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
@@ -89,7 +92,10 @@ const tagIdToTitle = (day: Array<number>) => {
   const item = datesDone.value?.[valToKey(day)];
   const tagInput = item?.tags;
   if (tagInput) {
-    const arr = typeof tagInput === "string" ? JSON.parse(tagInput) : tagInput;
+    let arr = typeof tagInput === "string" ? JSON.parse(tagInput) : tagInput;
+    if (tagToRender?.value?.id) {
+      arr = arr.filter((x: number) => tagToRender?.value?.id === x);
+    }
     return arr.map((x: any) => tags.value.find(y => y.id === x)).map((x: any) => '<span title="' + x?.title + '">' + (x?.emoji || x?.title.slice(0, 2)) + '</span>').join(' ');
   }
   return '';
@@ -263,7 +269,8 @@ makeList();
   color: #2c3e50;
 }
 
-.p-multiselect-option {
+.p-multiselect-option,
+.p-select-option {
   font-family: Avenir, Helvetica, Arial, sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
