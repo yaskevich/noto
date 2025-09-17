@@ -5,8 +5,22 @@
         @update:modelValue="change" style="max-width: 7rem;" />
       <ToggleSwitch v-model="checked" />
       <DatePicker v-model="selectedMonth" view="month" dateFormat="mm/yy" @update:modelValue="change" />
-      <Select v-model="tagToRender" :options="tags" optionLabel="title" filter placeholder="Select tags"
-        class="w-full md:w-56" />
+      <Select v-model="tagToRender" :options="tags" optionLabel="title" filter placeholder="Select tags" showClear
+        class="w-full md:w-56">
+        <template #value="slotProps">
+          <div v-if="slotProps.value" class="flex items-center">
+            <div>{{ slotProps.value.emoji }} {{ slotProps.value.title }}</div>
+          </div>
+          <span v-else>
+            {{ slotProps.placeholder }}
+          </span>
+        </template>
+        <template #option="slotProps">
+          <div class="flex items-center">
+            <div>{{ slotProps.option.emoji }} {{ slotProps.option.title }}</div>
+          </div>
+        </template>
+      </Select>
     </div>
     <div class="grid">
       <div class="col" v-for="day in weekdays">
