@@ -4,7 +4,8 @@
             <InputText type="text" v-model="title" /><Button label="Add" @click="addTag" />
         </div>
 
-        <div v-for="(item, index) in tags" class="p-1" style="max-width:350px;margin: 0 auto">
+        <div v-for="item in tags.sort((a: ICat, b: ICat) => (tagstat[b.id] - tagstat[a.id]))" class="p-1"
+            style="max-width:350px;margin: 0 auto">
             <div class="flex justify-content-between flex-wrap">
                 <div class="flex align-items-center justify-content-center">
                     <Button :label="(item?.emoji || '?') + ' ' + item.title" severity="secondary"
