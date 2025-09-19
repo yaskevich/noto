@@ -18,7 +18,7 @@
         </div>
       </template>
     </calendar-view>
-    <Unit v-for="entry in posts" :categories="cats" :post="entry" />
+    <Unit v-for="entry in posts" :categories="cats" :post="entry" :tags="tags" />
   </div>
 
   <Dialog v-model:visible="visible" modal header="Save Note" :style="{ width: '25rem' }">
@@ -43,10 +43,9 @@
 </template>
 
 <script setup lang="ts">
-import { h, ref, reactive, onBeforeMount } from 'vue';
+import { h, ref, onBeforeMount } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import ToggleSwitch from 'primevue/toggleswitch';
-import axios from 'axios';
 import helpers from '../helpers';
 import Unit from './Unit.vue';
 import { CalendarView, CalendarViewHeader } from 'vue-simple-calendar';
@@ -59,15 +58,15 @@ import "../../node_modules/vue-simple-calendar/dist/vue-simple-calendar.css";
 const toast = useToast();
 const showDate = ref(new Date());
 const setShowDate = (d: any) => showDate.value = d;
-const posts = reactive([] as Array<IPost>);
-const cats = reactive([] as Array<ICat>);
-const tags = reactive([] as Array<ICat>);
 const checked = ref(true);
 const visible = ref(false);
 const thisPost = ref<IPost>();
 const editor = helpers.setupEditor(thisPost?.value?.content || '');
 const curDate = ref();
 const selTags = ref();
+const tags = ref([] as Array<ICat>);
+const cats = ref([] as Array<ICat>);
+const posts = ref([] as Array<IPost>);
 
 const getLastMinute = () => {
   const dd = new Date(curDate.value.toISOString());
@@ -101,7 +100,7 @@ const onClickDay = (date: any, calendarItems: any) => {
     curDate.value = date;
     const dt = getLastMinute();
     // thisPost.value = {} as IPost;
-    const exPost = posts.find((x: IPost) => String(x.alarm) === String(dt));
+    const exPost = posts.value.find((x: IPost) => String(x.alarm) === String(dt));
     if (exPost?.id) {
       thisPost.value = exPost;
     }
@@ -118,26 +117,14 @@ const onClickDay = (date: any, calendarItems: any) => {
 };
 
 onBeforeMount(async () => {
-  const personsData = await axios.get('/api/persons', { params: { days: 30 } });
-  const { data } = await axios.get('/api/deadlines', { params: { days: 30 } });
-  const data2 = data.map((x: any) => ({ ...x, alarm: new Date(x.alarm), startDate: x.alarm, endDate: x.alarm }));
-  const data3 = personsData.data.map((x: any) => ({ ...x, startDate: x.bday, endDate: x.bday, title: '🎂' + x.name }));
-
-  const allData = data2.concat(data3);
-  Object.assign(
-    posts,
-    allData
-    // data2?.sort((a: any, b: any) => a.alarm.localeCompare(b.alarm))
-  );
-
-  const res = await axios.get('/api/cats');
-  Object.assign(cats, res.data);
-
-  const res2 = await axios.get('/api/tags');
-  Object.assign(
-    tags,
-    res2.data
-  );
+  tags.value = await helpers.get('tags');
+  cats.value = await helpers.get('cats');
+  const persons = await helpers.get('persons', { params: { days: 30 } });
+  const deadlines = await helpers.get('deadlines', { params: { days: 30 } });
+  const dataD = deadlines.map((x: any) => ({ ...x, alarm: new Date(x.alarm), startDate: x.alarm, endDate: x.alarm }));
+  const dataP = persons.map((x: any) => ({ ...x, startDate: x.bday, endDate: x.bday, title: '🎂' + x.name }));
+  // data2?.sort((a: any, b: any) => a.alarm.localeCompare(b.alarm))
+  posts.value = dataD.concat(dataP)
 });
 
 const saveNote = async () => {
@@ -162,10 +149,10 @@ const saveNote = async () => {
   if (realContent) {
     if (thisPost.value?.id) {
       console.log(thisPost.value);
-      const exPost = posts.find(x => x.id === thisPost.value?.id);
+      const exPost = posts.value.find(x => x.id === thisPost.value?.id);
       if (exPost?.id) {
         exPost.content = JSON.stringify(content);
-        const { data } = await axios.post('/api/note', { ...thisPost.value, content });
+        const data = await helpers.save('note', { ...thisPost.value, content });
         console.log(data);
       }
     } else {
@@ -180,9 +167,9 @@ const saveNote = async () => {
         deleted: false,
         cat: 1,
       } as IPost;
-      const { data } = await axios.post('/api/note', newPost);
+      const data = await helpers.save('note', newPost);
       console.log(data);
-      posts.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content, id: data.id } as any);
+      posts.value.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content, id: data.id } as any);
     }
     // if (userdate.value) {
     //   if (isStamped.value) {
