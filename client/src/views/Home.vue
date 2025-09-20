@@ -1,6 +1,6 @@
 <template>
   <div>
-    <InputText id="searchword" aria-describedby="search-word" type="text" v-model="searchword" @input="inputSearch"
+    <InputText id="searchword" aria-describedby="search-word" type="search" v-model="searchword" @input="inputSearch"
       class="p-d-block p-mx-auto mb-4" @keyup.enter="handleClick(0)" autocomplete="off" />
     <div class="text-center" v-show="posts?.length">
       <div class="flex flex-wrap gap-3 mb-4">
@@ -73,8 +73,8 @@ const searchword = ref('');
 const tags = ref([]);
 
 const inputSearch = async () => {
-  console.log(searchword.value);
-  if (searchword.value?.length > 3) {
+  console.log('search', searchword.value);
+  if ((searchword.value?.length > 3) || !searchword.value) {
     const { data } = await axios.get('/api/data', { params: { cat: cat.value, search: searchword.value } });
     posts.value = data.posts;
   }
