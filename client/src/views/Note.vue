@@ -18,6 +18,9 @@
         placeholder="Select Tags" display="chip" :maxSelectedLabels="3" class="w-full md:w-80" />
     </div>
     <editor-content :editor="editor" class="editor" ref="contentRef" />
+    {{ editor?.storage.characterCount.characters() }} characters
+    <br />
+    {{ editor?.storage.characterCount.words() }} words
   </div>
 </template>
 
