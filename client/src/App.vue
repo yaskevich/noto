@@ -14,7 +14,7 @@
   </div>
 </template>
 
-<style>
+<style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -58,5 +58,51 @@ p>a {
   -moz-hyphens: auto;
   -webkit-hyphens: auto;
   hyphens: auto;
+}
+
+/* Basic editor styles */
+.editor {
+  & {
+    display: inline-block;
+    text-align: left;
+    background: lightyellow;
+    min-width: 100%;
+    padding: 15px;
+  }
+
+  :first-child {
+    margin-top: 0;
+  }
+
+  .mention {
+    background-color: #CBC3E3;
+    border-radius: 0.4rem;
+    box-decoration-break: clone;
+    color: #8467D7;
+    padding: 0.1rem 0.3rem;
+    text-decoration: none;
+  }
+}
+
+.ProseMirror {
+  padding: 15px;
+
+  >*+* {
+    margin-top: 0.75em;
+  }
+}
+
+/* Placeholder (at the top) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+.content {
+  border: 1px dashed silver;
+  font-family: monospace;
 }
 </style>

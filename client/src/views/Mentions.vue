@@ -92,6 +92,7 @@ export default {
   overflow: auto;
   padding: 0.4rem;
   position: relative;
+  z-index: 1102;
 
   button {
     align-items: center;
