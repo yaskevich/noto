@@ -19,10 +19,11 @@
         <Button icon="pi pi-times-circle" severity="danger" class="p-button-text" @click="remove(item)" />
         <Button :icon="`pi pi-heart${item?.faved ? '-fill' : ''}`" class="p-button-text" @click="addToFavs(item)" />
         <Button v-if="item?.id" icon="pi pi-pencil" class="p-button-text" @click="goToNote(item.id, item)" />
-        <Button :disabled="!item.title" :icon="'pi pi-' + (item.full ? 'minus' : 'plus')" class="p-button-text"
+        <Button :disabled="!item.title || item?.content?.length < 3" :icon="'pi pi-' + (item.full ? 'minus' : 'plus')" class="p-button-text"
           @click="item.full = !item.full" />
       </div>
     </div>
+
     <div v-if="!item.title || (item.content && item.full)" v-html="helpers.html(item.content)" class="content"></div>
   </div>
 </template>
