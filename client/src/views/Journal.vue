@@ -1,6 +1,8 @@
 <template>
   <div v-show="isLoaded">
     <div class="card flex justify-center p-3">
+          <InputText id="searchword" aria-describedby="search-word" type="search" v-model="searchword" @input="inputSearch"
+      class="p-d-block p-mx-auto mb-4" @keyup.enter="inputSearch" autocomplete="off" />
       <Select v-model="selectedNumber" :options="range" placeholder="range" class="w-full md:w-56"
         @update:modelValue="change" style="max-width: 7rem;" />
       <ToggleSwitch v-model="checked" />
@@ -97,6 +99,8 @@ const tags = ref([] as Array<ICat>);
 const curDate = ref();
 const selectedMonth = ref();
 const tagToRender = ref<ICat>();
+const searchword = ref('');
+
 
 const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num, date.getDay()];
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
@@ -202,7 +206,7 @@ const getData = async () => {
   const from = selectedMonth.value ?
     helpers.formatDate(new Date(selectedMonth.value.getFullYear(), selectedMonth.value.getMonth() + 1, 0)) : '';
 
-  const data = await helpers.get('dated', { days: selectedNumber.value, from });
+  const data = await helpers.get('dated', { days: selectedNumber.value, from, search: searchword.value });
   if (data?.length) {
     posts.value = data
       .filter((x: IPost) => x?.wholeday && x?.time)
@@ -215,6 +219,14 @@ const getData = async () => {
     posts.value.forEach((x: IPost) => toKey(x));
   }
 };
+
+const inputSearch = async () => {
+  console.log('search', searchword.value);
+  if ((searchword.value?.length > 3) || !searchword.value) {
+    await getData();
+  }
+};
+
 
 onBeforeMount(async () => {
   tags.value = await helpers.get('tags');

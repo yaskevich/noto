@@ -260,9 +260,11 @@ app.get('/api/deadlines', async (req, res) => {
 app.get('/api/dated', async (req, res) => {
   const days = Number(req.query.days) || 30;
   const from = req.query.from;
+  const search = req.query.search;
   const when = from || 'now';
   const ext = from ? `AND alarm < datetime('${when}')` : '';
-  const sql = `SELECT * FROM posts WHERE deleted IS NOT TRUE AND wholeday IS TRUE AND alarm > datetime('${when}', '-${days} day') ${ext}`;
+  const ext2 = search ? 'AND content LIKE "%' + search + '%"' : '';
+  const sql = `SELECT * FROM posts WHERE deleted IS NOT TRUE AND wholeday IS TRUE AND alarm > datetime('${when}', '-${days} day') ${ext} ${ext2}`;
   const posts = await db.all(sql);
   res.json(posts);
 });
