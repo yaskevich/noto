@@ -1,29 +1,13 @@
 <template>
   <div v-show="isLoaded">
-    <div class="card flex justify-center p-3">
-          <InputText id="searchword" aria-describedby="search-word" type="search" v-model="searchword" @input="inputSearch"
-      class="p-d-block p-mx-auto mb-4" @keyup.enter="inputSearch" autocomplete="off" />
-      <Select v-model="selectedNumber" :options="range" placeholder="range" class="w-full md:w-56"
-        @update:modelValue="change" style="max-width: 7rem;" />
-      <ToggleSwitch v-model="checked" />
-      <DatePicker v-model="selectedMonth" view="month" dateFormat="mm/yy" @update:modelValue="change" />
-      <Select v-model="tagToRender" :options="tags" optionLabel="title" filter placeholder="Select tags" showClear
-        class="w-full md:w-56">
-        <template #value="slotProps">
-          <div v-if="slotProps.value" class="flex items-center">
-            <div>{{ slotProps.value.emoji }} {{ slotProps.value.title }}</div>
-          </div>
-          <span v-else>
-            {{ slotProps.placeholder }}
-          </span>
-        </template>
-        <template #option="slotProps">
-          <div class="flex items-center">
-            <div>{{ slotProps.option.emoji }} {{ slotProps.option.title }}</div>
-          </div>
-        </template>
-      </Select>
+
+    <div class="card flex justify-content-center p-3">
+      <ToggleButton v-model="checked" onLabel="Months" offLabel="Symbols" class="m-2" />
+      <Button type="button" label="Select" severity="info" @click="showSettings = true" class="m-2" />
+      <InputText id="searchword" aria-describedby="search-word" type="search" v-model="searchword" @input="inputSearch"
+        class="p-d-block p-mx-auto m-2" @keyup.enter="inputSearch" autocomplete="off" />
     </div>
+
     <div class="grid">
       <div class="col" v-for="day in weekdays">
         <div class="text-center p-3 border-round-sm bg-primary font-bold">{{ day }}</div>
@@ -46,7 +30,35 @@
     <div class="text-center">
       <Unit :categories="cats" v-for="entry in posts" :post="entry" :tags="tags" :key="entry.time" />
     </div>
+
   </div>
+
+  <Dialog v-model:visible="showSettings" modal header="Select options" class="mdl">
+    <div>
+      <Select v-model="tagToRender" :options="tags" optionLabel="title" filter placeholder="Select tags" showClear
+        class="w-full md:w-56">
+        <template #value="slotProps">
+          <div v-if="slotProps.value" class="flex items-center">
+            <div>{{ slotProps.value.emoji }} {{ slotProps.value.title }}</div>
+          </div>
+          <span v-else>
+            {{ slotProps.placeholder }}
+          </span>
+        </template>
+        <template #option="slotProps">
+          <div class="flex items-center">
+            <div>{{ slotProps.option.emoji }} {{ slotProps.option.title }}</div>
+          </div>
+        </template>
+      </Select>
+      <Select v-model="selectedNumber" :options="range" placeholder="range" class="w-full md:w-56"
+        @update:modelValue="change" style="max-width: 7rem;" />
+      <DatePicker v-model="selectedMonth" view="month" dateFormat="mm/yy" @update:modelValue="change" />
+      <!-- <div class="inline-flex flex-col justify-content-between items-start gap-2 w-full pt-4 pb-2">
+        <Button type="button" label="Close" severity="info" @click="showSettings = false"></Button>
+      </div> -->
+    </div>
+  </Dialog>
 
   <Dialog v-model:visible="visible" modal header="Save Note" class="mdl">
     <div>
@@ -100,7 +112,7 @@ const curDate = ref();
 const selectedMonth = ref();
 const tagToRender = ref<ICat>();
 const searchword = ref('');
-
+const showSettings = ref(false);
 
 const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num, date.getDay()];
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
