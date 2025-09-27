@@ -7,9 +7,6 @@ import { computePosition, flip, shift } from '@floating-ui/dom';
 import { posToDOMRect, VueRenderer } from '@tiptap/vue-3';
 import MentionList from './views/Mentions.vue';
 
-const html = (x: any) =>
-  x && x !== '""' ? generateHTML(typeof x === 'string' ? JSON.parse(x) : x, [StarterKit, Placeholder]) : '';
-
 const ms = [
   '⛄', // january
   '❄️', // februrary
@@ -117,7 +114,7 @@ const updatePosition = (editor: any, element: any) => {
     element.style.left = `${x}px`
     element.style.top = `${y}px`
   })
-}
+};
 
 const suggestion = {
   char: '!',
@@ -170,33 +167,34 @@ const suggestion = {
   },
 };
 
-const setupEditor = (content: string) =>
-  useEditor({
-    content: content,
-    extensions: [
-      StarterKit,
-      CharacterCount,
-      Placeholder.configure({
-        placeholder: 'Write something',
-        showOnlyWhenEditable: false,
-        showOnlyCurrent: false,
-      }),
-      Mention.configure({
-        HTMLAttributes: { class: 'mention', },
-        renderText(props) {
-          return `${props.node.attrs.id?.name ?? props.node.attrs.id?.id}`
-        },
-        renderHTML({ options, node }) {
-          return [
-            'a',
-            mergeAttributes({ href: '/person/1' }, options.HTMLAttributes),
-            `${node.attrs.id.name ?? node.attrs.id?.id}`,
-          ]
-        },
-        suggestion,
-      }),
-    ],
-  });
+const extensions = [
+  StarterKit,
+  CharacterCount,
+  Placeholder.configure({
+    placeholder: 'Write something',
+    showOnlyWhenEditable: false,
+    showOnlyCurrent: false,
+  }),
+  Mention.configure({
+    HTMLAttributes: { class: 'mention', },
+    renderText(props) {
+      return `${props.node.attrs.id?.name ?? props.node.attrs.id?.id}`
+    },
+    renderHTML({ options, node }) {
+      return [
+        'a',
+        mergeAttributes({ href: '/person/' + node.attrs.id?.id }, options.HTMLAttributes),
+        `${node.attrs.id.name ?? node.attrs.id?.id}`,
+      ]
+    },
+    suggestion,
+  }),
+];
+
+const html = (x: any) =>
+  x && x !== '""' ? generateHTML(typeof x === 'string' ? JSON.parse(x) : x, extensions) : '';
+
+const setupEditor = (content: string) => useEditor({ content, extensions });
 
 export default {
   html,
