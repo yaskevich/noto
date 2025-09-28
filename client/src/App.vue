@@ -13,6 +13,17 @@
     <router-view :key="$route.fullPath" />
   </div>
 </template>
+<script setup lang="ts">
+import { onBeforeMount } from 'vue';
+import helpers from './helpers';
+
+onBeforeMount(async () => {
+  if (!helpers.store?.persons?.length) {
+    Object.assign(helpers.store.persons, await helpers.get('persons', { all: 1 }));
+  }
+});
+
+</script>
 
 <style lang="scss">
 #app {

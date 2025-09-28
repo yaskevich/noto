@@ -6,6 +6,7 @@ import Mention from '@tiptap/extension-mention';
 import { computePosition, flip, shift } from '@floating-ui/dom';
 import { posToDOMRect, VueRenderer } from '@tiptap/vue-3';
 import MentionList from './views/Mentions.vue';
+import { reactive } from 'vue';
 
 const ms = [
   '⛄', // january
@@ -21,6 +22,10 @@ const ms = [
   '☔', // november
   '🎄', // december
 ];
+
+const store = reactive({
+  persons: [] as Array<IPerson>,
+});
 
 const get = async (route: string, params?: keyable) => {
   const response = await fetch(`/api/${route}?` + new URLSearchParams(params).toString());
@@ -167,6 +172,13 @@ const suggestion = {
   },
 };
 
+// const getPersonById = async (id: number) => {
+//   if (!store?.persons?.length) {
+//     Object.assign(store.persons, await get('persons', { all: 1 }));
+//   }
+//   return store.persons.find(x => x.id === id);
+// };
+
 const extensions = [
   StarterKit,
   CharacterCount,
@@ -183,8 +195,8 @@ const extensions = [
     renderHTML({ options, node }) {
       return [
         'a',
-        mergeAttributes({ href: '/person/' + node.attrs.id?.id }, options.HTMLAttributes),
-        `${node.attrs.id.name ?? node.attrs.id?.id}`,
+        mergeAttributes({ href: '/person/' + node.attrs.id }, options.HTMLAttributes),
+        `${store.persons.find(x => x.id === (node.attrs.id))?.name ?? node.attrs.id}`,
       ]
     },
     suggestion,
@@ -207,4 +219,5 @@ export default {
   del,
   getLastMinute,
   suggestion,
+  store,
 };
