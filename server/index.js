@@ -211,6 +211,14 @@ app.post('/api/fav', async (req, res) => {
   res.json(result);
 });
 
+app.get('/api/mentions', async (req, res) => {
+  let sql = "SELECT DISTINCT json_group_array(posts.id) as mentioned, json_extract(posts.content, substr(fullkey, 1, length(fullkey)-4) || 'attrs.id') as person FROM posts, json_tree(posts.content) WHERE value = 'mention' and content <> '' group by person";
+  const params = [];
+  const mentions = await db.all(sql);
+  res.json(mentions);
+});
+
+
 app.get('/api/persons', async (req, res) => {
   const days = Number(req.query.days) || 30;
   let sql = 'SELECT * FROM persons';

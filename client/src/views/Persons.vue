@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <h3>Persons</h3>
+    <h3>Persons&nbsp({{ persons?.length }})</h3>
     <Button label="Add" class="p-button-secondary" @click="addPerson" />
     <div v-for="(item, key) in persons" class="shadow-11 item p-2 mb-3 text-left"
       style="border: 1px dashed black; margin: 0 auto" :key="key" :title="item.name">
@@ -9,16 +9,22 @@
       </div>
       <div class="title">{{ helpers.formatDate(new Date(item.bday)) }}</div>
       <div v-if="item.content" v-html="helpers.html(item.content)" class="content"></div>
+      <template v-if="mentions?.[String(item?.id)]">
+        <span v-for="idx in mentions[String(item.id)]">
+          <router-link :to="`/note/${idx}`" class="mentioned">{{ idx }}</router-link>
+        </span>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, onBeforeMount } from 'vue';
-import axios from 'axios';
+import { ref, onBeforeMount } from 'vue';
 import router from '../router';
 import helpers from '../helpers';
-const persons = reactive([] as Array<IPerson>);
+
+const persons = ref([] as Array<IPerson>);
+const mentions = ref();
 
 const goToPerson = (id: number) => {
   router.push(`/person/${id}`);
@@ -29,8 +35,14 @@ const addPerson = () => {
 };
 
 onBeforeMount(async () => {
-  const { data } = await axios.get('/api/persons', { params: { all: 1 } });
-  console.log(data);
-  Object.assign(persons, data);
+  persons.value = await helpers.get('persons', { all: 1 });
+  const output = await helpers.get('mentions');
+  mentions.value = Object.assign({}, ...(output.map((x: keyable) => ({ [x.person]: [...new Set(JSON.parse(x.mentioned))] }))));
 });
 </script>
+<style>
+.mentioned {
+  text-decoration: none;
+  padding-right: 5px;
+}
+</style>
