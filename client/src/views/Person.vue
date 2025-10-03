@@ -15,39 +15,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onBeforeMount } from 'vue';
-import axios from 'axios';
+import { ref, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import { EditorContent } from '@tiptap/vue-3';
 import helpers from '../helpers';
+import router from '../router';
 
 const contentRef = ref<HTMLDivElement>();
 const editor = helpers.setupEditor('');
-const person = reactive({}) as IPerson;
+const person = ref({} as IPerson);
 const vuerouter = useRoute();
 const id = vuerouter.params.id;
-console.log('person id', id);
-// import router from '../router';
 
 onBeforeMount(async () => {
   if (id) {
-    const config = { params: { id: id } };
-    const { data } = await axios.get('/api/person', config);
-    Object.assign(person, data);
+    const data = await helpers.get('person', { id: id });
     const ttInstance = (contentRef.value as any).editor;
     ttInstance.commands.setContent(JSON.parse(data.content));
+    person.value = data;
   }
 });
 
 const handleClick = async () => {
-  const datum = { ...person };
+  const datum = { ...person.value };
   datum.content = editor?.value?.getJSON() || '';
   const curDate = helpers.formatDate(datum.bday);
   if (curDate) {
     datum.bday = new Date(curDate);
   }
   // console.log("person", datum);
-  const { data } = await axios.post('/api/person', datum);
+  const { data } = await helpers.save('person', datum);
   console.log('post', data);
+  router.push(`/persons`);
 };
 </script>
