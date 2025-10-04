@@ -227,6 +227,7 @@ app.get('/api/persons', async (req, res) => {
     sql += ` WHERE (substr(current_date, 1,4) || substr(bday, 5)) > datetime('now', '-' || ? || ' day')`;
     params.push(days);
   }
+  sql+= ' ORDER BY id DESC';
   const persons = await db.all(sql, params);
   res.json(persons);
 });
