@@ -96,7 +96,6 @@ import { EditorContent } from '@tiptap/vue-3';
 
 const posts = ref([] as Array<IPost>);
 const cats = ref([] as Array<ICat>);
-const order = (new Date()).getDay();
 const range = ref([28, 70, 140, 350]);
 const selectedNumber = ref(toRaw(range.value?.[0]));
 const allDays = ref();
@@ -113,6 +112,9 @@ const selectedMonth = ref();
 const tagToRender = ref<ICat>();
 const searchword = ref('');
 const showSettings = ref(false);
+
+const { format } = new Intl.DateTimeFormat(Intl.NumberFormat().resolvedOptions().locale, { weekday: "long" });
+const weekdays = [...Array(7).keys()].map((day) => format(new Date(Date.UTC(2021, 5, day))));
 
 const toDateArray = (date: Date, num = 0) => [...date.toString().split(' ').slice(0, 4), date.getMonth(), num, date.getDay()];
 const valToKey = (val: Array<number>) => `${val[3]}-${String(val[4] + 1).padStart(2, '0')}-${val[2]}`;
@@ -247,8 +249,8 @@ onBeforeMount(async () => {
   isLoaded.value = true;
 });
 
-const getDate = (num: number) => {
-  const date = new Date();
+const getDate = (dateIn: Date, num: number) => {
+  const date = new Date(dateIn.getTime());
   date.setDate(date.getDate() + num);
   return toDateArray(date, num);
 };
@@ -269,18 +271,16 @@ const setLink = () => {
   editor.value?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
 };
 
-const daysForLocale = () => {
-  const { format } = new Intl.DateTimeFormat(Intl.NumberFormat().resolvedOptions().locale, { weekday: "long" });
-  return [...Array(7).keys()]
-    .map((day) => format(new Date(Date.UTC(2021, 5, day))));
-};
-
-const weekdays = daysForLocale();
-const daysToAdd = 6 - (order - 2);
-const fwd = [...Array(daysToAdd).keys()].slice(1).map(x => getDate(x));
-
 const makeList = () => {
-  const bwd = [...Array(selectedNumber.value + order).keys()].map(x => getDate(-x));
+  const oldMode = selectedMonth.value instanceof Date;
+  const today = oldMode ?
+    new Date(selectedMonth.value.getFullYear(), selectedMonth.value.getMonth() + 1, 0) : (new Date());
+
+  const order = today.getDay();
+  console.log("order", order);
+  const daysToAdd = 6 - (order - 2);
+  const fwd = oldMode ? [] : [...Array(daysToAdd).keys()].slice(1).map(x => getDate(today, x));
+  const bwd = [...Array(selectedNumber.value + order).keys()].map(x => getDate(today, -x));
   const arr = fwd.reverse().concat(bwd);
   allDays.value = Array.from({ length: Math.ceil(arr.length / 7) }, (_, i) =>
     arr.slice(i * 7, i * 7 + 7).reverse()
