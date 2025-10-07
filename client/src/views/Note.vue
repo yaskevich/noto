@@ -4,14 +4,16 @@
       autocomplete="off" />
     <Button label="Save" @click="handleClick" />
     <div class="mt-2 mb-2">
-      <Select v-model="selectedCat" :options="cats" optionLabel="title" optionValue="id" placeholder="Select a category"
-        class="w-full md:w-14rem" />
+      <Select v-if="!note?.wholeday" v-model="selectedCat" :options="cats" optionLabel="title" optionValue="id"
+        placeholder="Select a category" class="w-full md:w-14rem" />
       <!-- <label for="time24">Date time</label> -->
-      <DatePicker id="time24" v-model="note.alarm" :showTime="true" :showIcon="true" :showButtonBar="true"
+      <DatePicker v-if="note?.wholeday" v-model="note.alarm" dateFormat="dd.mm.yy" />
+      <DatePicker v-else id="time24" v-model="note.alarm" :showTime="true" :showIcon="true" :showButtonBar="true"
         :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
     </div>
-    <div> Completed
-      <ToggleSwitch v-model="completed" />
+    <div>
+      <ToggleButton v-model="completed" onLabel="Completed" offLabel="Draft" onIcon="pi pi-circle-fill"
+        offIcon="pi pi-circle" class="m-2" />
     </div>
     <div class="card flex justify-center">
       <MultiSelect v-model="selectedTags" :options="tags" optionLabel="title" optionsValue="id" filter
