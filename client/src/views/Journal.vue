@@ -214,6 +214,7 @@ const toKey = (val: IPost) => {
   if (key) {
     datesDone.value[key] = val;
   }
+  return val;
 };
 
 const getData = async () => {
@@ -224,23 +225,23 @@ const getData = async () => {
   if (data?.length) {
     posts.value = data
       .filter((x: IPost) => x?.wholeday && x?.time)
+      .map((x: IPost) => ({ ...x, full: searchword?.value?.length > 2 }))
+      .map((x: IPost) => toKey(x))
       .sort((a: any, b: any) => {
         // const atime = a.stamped ? (Number.isInteger(a.time) ? (new Date(a.time)).toISOString() : a.time) : a.alarm;
         // const btime = b.stamped ? (Number.isInteger(b.time) ? (new Date(b.time)).toISOString() : b.time) : b.alarm;
         // return btime.localeCompare(atime);
         return b.alarm.localeCompare(a.alarm);
       });
-    posts.value.forEach((x: IPost) => toKey(x));
   }
 };
 
 const inputSearch = async () => {
   console.log('search', searchword.value);
-  if ((searchword.value?.length > 3) || !searchword.value) {
+  if ((searchword.value?.length > 2) || !searchword.value) {
     await getData();
   }
 };
-
 
 onBeforeMount(async () => {
   tags.value = await helpers.get('tags');
