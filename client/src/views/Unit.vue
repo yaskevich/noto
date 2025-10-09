@@ -8,10 +8,10 @@
           :value="props.categories.find(x => x.id === item.cat)?.title || '★'" class="mr-2"></Tag>
         <span class="p-1" v-if="item.alarm" style="color: red; font-weight: bold">{{ helpers.renderDate(item?.alarm,
           item?.wholeday)
-          }}</span>
+        }}</span>
         <span class="p-1" v-if="item?.bday" style="color: orange; font-weight: bold">{{ helpers.renderDate(item?.bday,
           true)
-        }}</span>
+          }}</span>
         <i class="pi pi-clock p-1" v-if="item.stamped" style="color:green"></i>
         <span v-if="!item?.bday">{{ helpers.renderDate(item.time) }}</span>
         <span class="title p-1">{{ item.title }}</span>
@@ -26,12 +26,12 @@
       </div>
     </div>
 
-    <div v-if="!item.title || (item.content && item.full)" v-html="renderWithSearch(item.content)" class="content"></div>
+    <div v-if="!item.title || (item.content && item.full)" v-html="renderWithSearch(item.content)" class="content">
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
 import router from '../router';
 import helpers from '../helpers';
 
@@ -61,7 +61,7 @@ const goToNote = (id: number, item: IPost) => {
 
 const remove = async (post: IPost) => {
   item.deleted = true;
-  const { data } = await axios.delete(`/api/note/${post.id}`);
+  const data = await helpers.del(`note`, { id: post.id });
   console.log(data);
 };
 
@@ -81,8 +81,8 @@ const addToFavs = async (item: IPost) => {
 
 .highlight {
   background-color: yellow;
-  padding: 0 5px 0 5px;
+  padding: 1px 0 1px 0;
   font-weight: bold;
-  border-radius: 5px;
+  border-radius: 1px;
 }
 </style>

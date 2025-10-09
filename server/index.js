@@ -171,7 +171,6 @@ app.delete('/api/cats', async (req, res) => {
   }
 });
 
-
 app.get('/api/note', async (req, res) => {
   const id = req.query.id || 1;
   const note = await db.all(`SELECT * FROM posts WHERE id = ?`, [id]);
@@ -227,7 +226,7 @@ app.get('/api/persons', async (req, res) => {
     sql += ` WHERE (substr(current_date, 1,4) || substr(bday, 5)) > datetime('now', '-' || ? || ' day')`;
     params.push(days);
   }
-  sql+= ' ORDER BY id DESC';
+  sql += ' ORDER BY id DESC';
   const persons = await db.all(sql, params);
   res.json(persons);
 });
@@ -278,8 +277,8 @@ app.get('/api/dated', async (req, res) => {
   res.json(posts);
 });
 
-app.delete('/api/note/:id', async (req, res) => {
-  const id = Number(req.params.id);
+app.delete('/api/note', async (req, res) => {
+  const id = Number(req.body.id);
   res.json(id ? await db.run(`UPDATE posts SET deleted = 1 WHERE id = ?`, [id]) : {});
 });
 
