@@ -1,7 +1,7 @@
 <template>
   <div class="text-center">
     <h3>Persons&nbsp({{ persons?.length }})</h3>
-    <Button label="Add" class="p-button-secondary" @click="addPerson" />
+    <Button label="Add" class="p-button-secondary mb-2" @click="addPerson" />
     <div v-for="(item, key) in persons" class="shadow-11 item p-2 mb-3 text-left"
       style="border: 1px dashed black; margin: 0 auto" :key="key" :title="item.name">
       <div class="title mb-2">
@@ -11,7 +11,7 @@
       <div v-if="item.content" v-html="helpers.html(item.content)" class="content"></div>
       <template v-if="mentions?.[String(item?.id)]">
         <span v-for="idx in mentions[String(item.id)]">
-          <router-link :to="`/note/${idx}`" class="mentioned">{{ idx }}</router-link>
+          <router-link :title="titles?.[String(idx)]" :to="`/note/${idx}`" class="mentioned">{{ idx }}</router-link>
         </span>
       </template>
     </div>
@@ -25,6 +25,7 @@ import helpers from '../helpers';
 
 const persons = ref([] as Array<IPerson>);
 const mentions = ref();
+const titles = ref();
 
 const goToPerson = (id: number) => {
   router.push(`/person/${id}`);
@@ -36,9 +37,13 @@ const addPerson = () => {
 
 onBeforeMount(async () => {
   persons.value = await helpers.get('persons', { all: 1 });
+  const data = await helpers.get('titles');
+  titles.value = Object.assign({}, ...(data.map((x: any) => ({ [x.id]: x.title }))));
   const output = await helpers.get('mentions');
   mentions.value = Object.assign({}, ...(output.map((x: keyable) => ({ [x.person]: [...new Set(JSON.parse(x.mentioned))] }))));
 });
+
+
 </script>
 <style>
 .mentioned {

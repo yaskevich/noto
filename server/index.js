@@ -265,6 +265,11 @@ app.get('/api/deadlines', async (req, res) => {
   res.json(deadlines);
 });
 
+app.get('/api/titles', async (req, res) => {
+  const titles = await db.all(`SELECT id, title FROM posts where wholeday IS TRUE AND deleted IS NOT TRUE`);
+  res.json(titles);
+});
+
 app.get('/api/dated', async (req, res) => {
   const days = Number(req.query.days) || 30;
   const from = req.query.from;
