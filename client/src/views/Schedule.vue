@@ -23,6 +23,14 @@
 
   <Dialog v-model:visible="visible" modal header="Save Note" :style="{ width: '25rem' }">
     <div>
+      <InputText id="search" aria-describedby="search-help" type="text" v-model="title" class="p-d-block p-mx-auto"
+        autocomplete="off" />
+
+      <div class="mt-2">
+        <!-- <label for="time24">Date time</label> -->
+        <DatePicker ref="calRef" id="time24" v-model="userdate" :showTime="true" :showIcon="true" :showButtonBar="true"
+          :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
+      </div>
       <div v-if="editor">
         <div class="mb-2">
           <button @click="setLink" :class="{ 'is-active': editor.isActive('link') }">setLink</button>
@@ -67,14 +75,8 @@ const selTags = ref();
 const tags = ref([] as Array<ICat>);
 const cats = ref([] as Array<ICat>);
 const posts = ref([] as Array<IPost>);
-
-const getLastMinute = () => {
-  const dd = new Date(curDate.value.toISOString());
-  dd.setHours(dd.getHours() + 23);
-  dd.setMinutes(dd.getMinutes() + 59);
-  dd.setSeconds(dd.getSeconds() + 59);
-  return dd;
-};
+const userdate = ref();
+const title = ref();
 
 const renderMarker = (val: any) => {
   if (val.originalItem?.wholeday) {
@@ -95,16 +97,18 @@ const onClickEvent = (val: any) => {
 const onClickDay = (date: any, calendarItems: any) => {
   console.log(date, calendarItems);
   if (checked.value) {
-    console.log("add event", date);
+    console.log("add event", typeof date);
     visible.value = true;
     curDate.value = date;
-    const dt = getLastMinute();
+    date.setHours(date.getHours() + 12)
+    userdate.value = date;
+    // const dt = getLastMinute();
     // thisPost.value = {} as IPost;
-    const exPost = posts.value.find((x: IPost) => String(x.alarm) === String(dt));
-    if (exPost?.id) {
-      thisPost.value = exPost;
-    }
-    editor.value?.commands.setContent((exPost?.content && JSON.parse(exPost?.content) || ''));
+    // const exPost = posts.value.find((x: IPost) => String(x.alarm) === String(dt));
+    // if (exPost?.id) {
+    //   thisPost.value = exPost;
+    // }
+    // editor.value?.commands.setContent((exPost?.content && JSON.parse(exPost?.content) || ''));
   } else {
     for (let item of calendarItems) {
       console.log(item);
@@ -128,56 +132,58 @@ onBeforeMount(async () => {
 });
 
 const saveNote = async () => {
-  visible.value = false;
-  const realContent = editor.value?.getText();
-  console.log(realContent);
-  const options = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  };
+  if (title.value) {
+    visible.value = false;
+    const realContent = editor.value?.getText();
+    console.log(realContent);
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
 
-  // console.log(thisPost.value);
+    // console.log(thisPost.value);
 
-  const title = curDate.value.toLocaleDateString("ru-BY", options);
-  // const time = Math.floor(curDate.value.getTime()) as any;
-  // const t = String(Date.now());
-  // console.log(t, time);
+    const title = curDate.value.toLocaleDateString("ru-BY", options);
+    // const time = Math.floor(curDate.value.getTime()) as any;
+    // const t = String(Date.now());
+    // console.log(t, time);
 
-  const content = editor.value?.getJSON()
-  if (realContent) {
-    if (thisPost.value?.id) {
-      console.log(thisPost.value);
-      const exPost = posts.value.find(x => x.id === thisPost.value?.id);
-      if (exPost?.id) {
-        exPost.content = JSON.stringify(content);
-        const data = await helpers.save('note', { ...thisPost.value, content });
+    const content = editor.value?.getJSON()
+    if (realContent) {
+      if (thisPost.value?.id) {
+        console.log(thisPost.value);
+        const exPost = posts.value.find(x => x.id === thisPost.value?.id);
+        if (exPost?.id) {
+          exPost.content = JSON.stringify(content);
+          const data = await helpers.save('note', { ...thisPost.value, content });
+          console.log(data);
+        }
+      } else {
+        const newPost = {
+          title,
+          content,
+          stamped: false,
+          time: String(Date.now()),
+          alarm: userdate.value,
+          wholeday: false,
+          faved: false,
+          deleted: false,
+          cat: 1,
+        } as IPost;
+        const data = await helpers.save('note', newPost);
         console.log(data);
+        posts.value.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content, id: data.id } as any);
       }
-    } else {
-      const newPost = {
-        title,
-        content,
-        stamped: true,
-        time: String(Date.now()),
-        alarm: getLastMinute(),
-        wholeday: true,
-        faved: false,
-        deleted: false,
-        cat: 1,
-      } as IPost;
-      const data = await helpers.save('note', newPost);
-      console.log(data);
-      posts.value.push({ ...newPost, startDate: newPost.alarm, endDate: newPost.alarm, tooltip: newPost.content, id: data.id } as any);
+      // if (userdate.value) {
+      //   if (isStamped.value) {
+      //     newPost.time = userdate.value;
+      //   } else {
+      //     newPost.alarm = userdate.value;
+      //   }
+      // }
     }
-    // if (userdate.value) {
-    //   if (isStamped.value) {
-    //     newPost.time = userdate.value;
-    //   } else {
-    //     newPost.alarm = userdate.value;
-    //   }
-    // }
   }
 };
 
