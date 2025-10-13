@@ -7,7 +7,7 @@
       <Select v-if="!note?.wholeday" v-model="selectedCat" :options="cats" optionLabel="title" optionValue="id"
         placeholder="Select a category" class="w-full md:w-14rem" />
       <!-- <label for="time24">Date time</label> -->
-      <DatePicker v-if="note?.wholeday" v-model="note.alarm" dateFormat="dd.mm.yy" />
+      <Badge severity="secondary" size="xlarge" v-if="note?.wholeday">{{ helpers.formatDate(note?.alarm) }}</Badge>
       <DatePicker v-else id="time24" v-model="note.alarm" :showTime="true" :showIcon="true" :showButtonBar="true"
         :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
     </div>
@@ -55,7 +55,9 @@ onBeforeMount(async () => {
     const config = { params: { id: id } };
     const { data } = await axios.get('/api/note', config);
     if (data?.alarm) {
-      data.alarm = new Date(data.alarm);
+      const date = new Date(data.alarm);
+      const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+      data.alarm = new Date(date.getTime() + userTimezoneOffset);
     }
 
     completed.value = data.completed ? true : false;
