@@ -22,6 +22,7 @@ declare global {
     bday: Date;
     content: Object;
     id: number;
+    tags: Array<number>;
   }
   interface ICat {
     title: string;
@@ -40,9 +41,10 @@ declare global {
     cat: number;
     full?: boolean;
     wholeday?: boolean;
-    tags: any;
+    tags: Array<number>;
     startDate?: Date;
     bday?: Date;
     completed: boolean;
+    key?: string;
   }
 }

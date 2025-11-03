@@ -49,6 +49,7 @@ const schemePersons = `CREATE TABLE IF NOT EXISTS persons (
   [bday] DATETIME,
   [name] TEXT,
   [content] TEXT,
+  [tags] JSON,
   [deleted] BOOLEAN DEFAULT FALSE
   )`;
 
@@ -241,18 +242,20 @@ app.post('/api/person', async (req, res) => {
   let response = {};
   // console.log('req.body', req.body);
   if (req.body.id) {
-    const result = await db.run(`UPDATE persons SET bday = ?, name = ?, content = json(?) WHERE id = ?`, [
+    const result = await db.run(`UPDATE persons SET bday = ?, name = ?, content = json(?), tags = json(?) WHERE id = ?`, [
       req.body.bday,
       req.body.name,
       JSON.stringify(req.body.content),
+      JSON.stringify(req.body.tags),
       req.body.id,
     ]);
     response = { id: req.body.id };
   } else {
-    const result = await db.run(`INSERT INTO persons (bday, name, content) VALUES ( ?, ?, json(?))`, [
+    const result = await db.run(`INSERT INTO persons (bday, name, content, tags) VALUES ( ?, ?, json(?), json(?))`, [
       req.body.bday,
       req.body.name,
       JSON.stringify(req.body.content),
+      JSON.stringify(req.body.tags)
     ]);
     response = { id: result.lastID };
   }

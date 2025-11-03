@@ -208,10 +208,14 @@ const html = (x: any) =>
 
 const setupEditor = (content: string) => useEditor({ content, extensions });
 
+const getTags = (str: string) => str ? JSON.parse(str) : [];
+
+
 export default {
   html,
   renderDate,
   formatDate,
+  getTags,
   setupEditor,
   months: ms,
   get,

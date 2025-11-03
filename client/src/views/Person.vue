@@ -9,7 +9,10 @@
       <DatePicker id="time24" v-model="person.bday" :showTime="false" :showIcon="true" :showButtonBar="true"
         :hideOnDateTimeSelect="true" :touchUI="true" :showOnFocus="false" dateFormat="yy.mm.dd" />
     </div>
-
+    <div class="card flex justify-center">
+      <MultiSelect v-model="selectedTags" :options="tags" optionLabel="title" optionsValue="id" filter
+        placeholder="Select Tags" display="chip" :maxSelectedLabels="3" class="w-full md:w-80" />
+    </div>
     <editor-content :editor="editor" class="editor" ref="contentRef" />
   </div>
 </template>
@@ -26,25 +29,33 @@ const editor = helpers.setupEditor('');
 const person = ref({} as IPerson);
 const vuerouter = useRoute();
 const id = vuerouter.params.id;
+const tags = ref([]);
+const selectedTags = ref([]);
+
 
 onBeforeMount(async () => {
   if (id) {
+    tags.value = await helpers.get('tags');
     const data = await helpers.get('person', { id: id });
     const ttInstance = (contentRef.value as any).editor;
     ttInstance.commands.setContent(JSON.parse(data.content));
     person.value = data;
+    const tagIds = helpers.getTags(data.tags);
+    selectedTags.value = tags.value.filter((x: any) => tagIds.find((y: any) => y === x.id));
+
   }
 });
 
 const handleClick = async () => {
   const datum = { ...person.value };
   datum.content = editor?.value?.getJSON() || '';
+  datum.tags = selectedTags.value.map((x: any) => x.id);
   const curDate = helpers.formatDate(datum.bday);
   if (curDate) {
     datum.bday = new Date(curDate);
   }
   // console.log("person", datum);
-  const { data } = await helpers.save('person', datum);
+  const data = await helpers.save('person', datum);
   console.log('post', data);
   router.push(`/persons`);
 };
