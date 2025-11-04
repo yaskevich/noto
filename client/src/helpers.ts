@@ -210,12 +210,20 @@ const setupEditor = (content: string) => useEditor({ content, extensions });
 
 const getTags = (str: string) => str ? JSON.parse(str) : [];
 
+const renderTags = (tags: Array<ICat>, val: string | number[]) => {
+  if (val) {
+    const arr = typeof val === "string" ? JSON.parse(val) : val;
+    return arr.map((x: any) => tags.find(y => y.id === x)).map((x: any) => '<span title="' + x?.title + '">' + (x?.emoji || x?.title.slice(0, 2)) + '</span>').join(' ');
+  }
+  return '';
+};
 
 export default {
   html,
   renderDate,
   formatDate,
   getTags,
+  renderTags,
   setupEditor,
   months: ms,
   get,

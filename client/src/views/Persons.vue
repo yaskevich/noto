@@ -9,6 +9,7 @@
       </div>
       <div class="title">{{ helpers.formatDate(new Date(item.bday)) }}</div>
       <div v-if="item.content" v-html="helpers.html(item.content)" class="content"></div>
+      <span v-html="helpers.renderTags(tags, item.tags)"></span>
       <template v-if="mentions?.[String(item?.id)]">
         <span v-for="idx in mentions[String(item.id)]">
           <router-link :title="titles?.[String(idx)]" :to="`/note/${idx}`" class="mentioned">{{ idx }}</router-link>
@@ -26,6 +27,8 @@ import helpers from '../helpers';
 const persons = ref([] as Array<IPerson>);
 const mentions = ref();
 const titles = ref();
+const tags = ref([] as Array<ICat>);
+
 
 const goToPerson = (id: number) => {
   router.push(`/person/${id}`);
@@ -36,6 +39,7 @@ const addPerson = () => {
 };
 
 onBeforeMount(async () => {
+  tags.value = await helpers.get('tags');
   persons.value = await helpers.get('persons', { all: 1 });
   const data = await helpers.get('titles');
   titles.value = Object.assign({}, ...(data.map((x: any) => ({ [x.id]: x.title }))));

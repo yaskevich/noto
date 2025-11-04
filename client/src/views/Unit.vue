@@ -15,7 +15,7 @@
         <i class="pi pi-clock p-1" v-if="item.stamped" style="color:green"></i>
         <span v-if="!item?.bday">{{ helpers.renderDate(item.time) }}</span>
         <span class="title p-1">{{ item.title }}</span>
-        <span v-html="renderTags(item.tags)"></span>
+        <span v-html="helpers.renderTags(props.tags, item.tags)"></span>
       </div>
       <div class="ml-auto">
         <Button icon="pi pi-times-circle" severity="danger" class="p-button-text" @click="remove(item)" />
@@ -46,14 +46,6 @@ const props = defineProps<Props>();
 const item = props.post;
 
 const renderWithSearch = (data: any) => props.term ? helpers.html(data).replaceAll(props.term, `<span class='highlight'>${props.term}</span>`) : helpers.html(item.content);
-
-const renderTags = (val: Array<ICat>) => {
-  if (val) {
-    const arr = typeof val === "string" ? JSON.parse(val) : val;
-    return arr.map((x: any) => props.tags.find(y => y.id === x)).map((x: any) => '<span title="' + x?.title + '">' + (x?.emoji || x?.title.slice(0, 2)) + '</span>').join(' ');
-  }
-  return '';
-}
 
 const goToNote = (id: number, item: IPost) => {
   router.push(item?.bday ? `/person/${id}` : `/note/${id}`);

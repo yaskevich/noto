@@ -45,15 +45,12 @@ const selectedCat = ref(1);
 const completed = ref(true);
 const isLoaded = ref(false);
 
-const getTags = (str: string) => str ? JSON.parse(str) : [];
 
 onBeforeMount(async () => {
-  const tagsData = await axios.get('/api/tags');
-  tags.value = tagsData.data;
+  tags.value = await helpers.get('tags');
 
   if (id) {
-    const config = { params: { id: id } };
-    const { data } = await axios.get('/api/note', config);
+    const data = await helpers.get('note', { id });
     if (data?.alarm) {
       const date = new Date(data.alarm);
       const userTimezoneOffset = date.getTimezoneOffset() * 60000;
@@ -61,8 +58,8 @@ onBeforeMount(async () => {
     }
 
     completed.value = data.completed ? true : false;
-    const tagIds = getTags(data.tags);
-    selectedTags.value = tagsData.data.filter((x: any) => tagIds.find((y: any) => y === x.id));
+    const tagIds = helpers.getTags(data.tags);
+    selectedTags.value = tags.value.filter((x: any) => tagIds.find((y: any) => y === x.id));
 
     Object.assign(note, data);
     const ttInstance = (contentRef.value as any).editor;
