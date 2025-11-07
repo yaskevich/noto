@@ -28,7 +28,8 @@
     </div>
 
     <div class="text-center">
-      <Unit :categories="cats" v-for="entry in posts" :post="entry" :tags="tags" :key="entry.time" :term="searchword" />
+      <Unit :categories="cats" v-for="entry in posts" :post="entry" :tags="tags" :key="entry.key"
+        :term="searchword" />
     </div>
 
   </div>
@@ -223,9 +224,10 @@ const getData = async () => {
 
   const data = await helpers.get('dated', { days: selectedNumber.value, from, search: searchword.value });
   if (data?.length) {
+    const full = searchword?.value?.length > 2;
     posts.value = data
       .filter((x: IPost) => x?.wholeday && x?.time)
-      .map((x: IPost) => ({ ...x, full: searchword?.value?.length > 2 }))
+      .map((x: IPost) => ({ ...x, full, key: String(x.id) + searchword.value }))
       .map((x: IPost) => toKey(x))
       .sort((a: any, b: any) => {
         // const atime = a.stamped ? (Number.isInteger(a.time) ? (new Date(a.time)).toISOString() : a.time) : a.alarm;
@@ -233,6 +235,8 @@ const getData = async () => {
         // return btime.localeCompare(atime);
         return b.alarm.localeCompare(a.alarm);
       });
+  } else {
+    posts.value = [];
   }
 };
 
